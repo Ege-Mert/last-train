@@ -56,5 +56,5 @@
         "temp/": true,
         "Temp/": true
     },
-    "dotnet.defaultSolution": "lastotraindo.sln"
+    "dotnet.defaultSolution": "last-train.sln"
 }
