@@ -13,7 +13,6 @@ GameObject:
   - component: {fileID: 6565624926747471366}
   - component: {fileID: 7918726518481363889}
   - component: {fileID: 210562199508600049}
-  - component: {fileID: -3338585525503305691}
   m_Layer: 0
   m_Name: WoodCollector
   m_TagString: Untagged
@@ -130,20 +129,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6318d08a6ffefea48a8d7d88323c8037, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  collectedResourceType: 0
   baseCollectionRate: 1
---- !u!114 &-3338585525503305691
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5790025892370014541}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f292ac369d0adfc40873e0e2d86045d7, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  maxDurability: 100
-  currentDurability: 100
-  degradeRate: 0.1
