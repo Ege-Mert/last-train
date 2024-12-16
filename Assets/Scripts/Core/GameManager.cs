@@ -9,6 +9,7 @@ public class GameManager : MonoBehaviour
     public BiomeData biomeData;
     public MapSettings mapSettings;
     public ResourceSettings resourceSettings;
+    public DisasterData disasterData;
     public WagonBuildData[] wagonBuildDatas;
     public List<GameObject> wagonPrefabs; // Each prefab corresponds to a type in wagonBuildDatas order
     public DisasterData disasterData;
