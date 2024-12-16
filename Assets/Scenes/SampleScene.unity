@@ -162,6 +162,9 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 557daf6cf754af04f8db9bae4e803043, type: 2}
   wagonPrefabs:
   - {fileID: 5790025892370014541, guid: 979ed34fd0a07d44bb17f802acd6e58b, type: 3}
+  - {fileID: 5790025892370014541, guid: 979ed34fd0a07d44bb17f802acd6e58b, type: 3}
+  - {fileID: 5790025892370014541, guid: 979ed34fd0a07d44bb17f802acd6e58b, type: 3}
+  - {fileID: 5790025892370014541, guid: 979ed34fd0a07d44bb17f802acd6e58b, type: 3}
   eventPool:
   - {fileID: 11400000, guid: c09eee9bc33d2cb43b3edfc28fc3a23d, type: 2}
 --- !u!4 &352015391
