@@ -13,6 +13,7 @@ public class GameManager : MonoBehaviour
     public WagonBuildData[] wagonBuildDatas;
     public List<GameObject> wagonPrefabs; // Each prefab corresponds to a type in wagonBuildDatas order
     public List<EventData> eventPool; // Assign in inspector
+    [SerializeField] private TimeIntervalScheduler eventSchedulerPrefab; // a prefab or assign a scene object
 
 
 
@@ -29,6 +30,9 @@ public class GameManager : MonoBehaviour
     private TrainPhysics trainPhysics;
     private DisasterManager disasterManager;
     private EventManager eventManager;
+    private TimeIntervalScheduler eventScheduler;
+    private GameEndingsManager endingsManager;
+
 
 
 
@@ -36,26 +40,6 @@ public class GameManager : MonoBehaviour
     {
         Initialize();
     }
-    
-    void Update()
-    {
-        // disasterUpdater is separate now, so no need here for disaster update.
-        if (eventManager != null)
-            eventManager.UpdateEvents();
-    }
-    
-    
-    public void GameOver(bool won)
-    {
-    if (won)
-        Debug.Log("You Win!");
-    else
-        Debug.Log("You Lose!");
-
-    // You can stop time, show a UI screen, or return to main menu here.
-    Time.timeScale = 0f; // Pause the game as an example
-    }
-    
 
     public void Initialize()
     {
@@ -119,8 +103,21 @@ public class GameManager : MonoBehaviour
         updater.Initialize(disasterManager);
         
         // Events
+        // Create or find the eventScheduler
+        eventScheduler = Instantiate(eventSchedulerPrefab); 
+        // If it's a scene object, you can skip Instantiate and just reference it from Inspector
+
         eventManager = new EventManager();
-        eventManager.Initialize(this, eventPool);
+        eventManager.Initialize(this, eventPool, eventScheduler);
+        
+        // Endings
+        endingsManager = new GameEndingsManager();
+        endingsManager.Initialize(this);
+        
+        // Events from DisasterManager and TrainBase
+        GetDisasterManager().OnLoseCondition += () => endingsManager.HandleGameOver(false);
+        GetTrainBase().OnWinCondition += () => endingsManager.HandleGameOver(true);
+
 
 
         

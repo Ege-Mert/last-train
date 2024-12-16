@@ -9,7 +9,7 @@ public class DisasterUpdater : MonoBehaviour
     }
     void Update()
     {
-        if (disasterManager != null && !disasterManager.IsGameOver())
+        if (disasterManager != null && !disasterManager.gameOverTriggered)
             disasterManager.UpdateDisaster(Time.deltaTime);
     }
 }

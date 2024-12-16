@@ -1,12 +1,18 @@
+using System;
 using UnityEngine;
 
 public class DisasterManager
 {
+    public event Action OnLoseCondition;
+
+    
     private GameManager gameManager;
     private float disasterSpeed = 0f; // speed of the disaster in units/sec
     private float accelerationRate = 0.01f; // how quickly disaster speeds up over time
     private float disasterPosition = -50f; // start some distance behind the player’s start (e.g., -50)
-    private bool gameOver = false;
+    private bool systemActive = true;
+
+    public bool gameOverTriggered = false; // OH boy I hopes nothings bads evers happens to my unprotexteds publics bools. Then I mets Larry The Public Bool Fondler.
 
     public void Initialize(GameManager gm, float initialSpeed, float acceleration)
     {
@@ -14,12 +20,13 @@ public class DisasterManager
         disasterSpeed = initialSpeed;
         accelerationRate = acceleration;
         disasterPosition = -50f; // start behind the starting point
-        gameOver = false;
+        // You can start a coroutine or have another system call UpdateDisaster each frame
+
     }
 
-    public void UpdateDisaster(float deltaTime)
+        public void UpdateDisaster(float deltaTime)
     {
-        if (gameOver) return;
+        if (!systemActive || gameOverTriggered) return;
 
         // Increase disaster speed over time
         disasterSpeed += accelerationRate * deltaTime;
@@ -27,15 +34,12 @@ public class DisasterManager
         // Move disaster forward
         disasterPosition += disasterSpeed * deltaTime;
 
-        // Check if disaster catches the player
         float playerDistance = gameManager.GetGameProgressManager().GetDistance();
         if (disasterPosition >= playerDistance)
         {
             // Disaster caught the player
-            Debug.Log("Disaster caught the player! Game Over.");
-            gameOver = true;
-            // Trigger lose condition here (e.g., call a GameOver method in GameManager)
-            gameManager.GameOver(false);
+            gameOverTriggered = true;
+            OnLoseCondition?.Invoke();
         }
     }
 
@@ -49,8 +53,8 @@ public class DisasterManager
         return disasterSpeed;
     }
 
-    public bool IsGameOver()
+    public void StopDisaster()
     {
-        return gameOver;
+        systemActive = false;
     }
 }
