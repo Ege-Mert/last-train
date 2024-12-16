@@ -1,7 +1,11 @@
+using System;
 using UnityEngine;
 
 public class TrainBase : MonoBehaviour
 {
+    public event Action OnWinCondition;
+
+    
     [Header("Train Settings")]
     public float baseMotorForce = 10f;
     public float frictionCoefficient = 0.01f;
@@ -10,6 +14,8 @@ public class TrainBase : MonoBehaviour
     public float maxSpeed = 20f; // just a cap for safety
     public float acceleration = 0f; // computed
     private float currentSpeed = 0f;
+    
+    private bool winTriggered = false;
 
     private GameManager gameManager;
     private TrainPhysics trainPhysics;
@@ -30,7 +36,9 @@ public class TrainBase : MonoBehaviour
     void Update()
     {
         UpdateSpeed(Time.deltaTime);
+        CheckIfWin();
     }
+
 
     private void UpdateSpeed(float deltaTime)
     {
@@ -110,7 +118,17 @@ public class TrainBase : MonoBehaviour
         }
         return 0f;
     }
+    private void CheckIfWin() // We can refactor this in future if need so it doesnt check every frame but I am tired rn
+    {
+        float trainDistance = gameManager.GetGameProgressManager().GetDistance();
+        float finalDistance = gameManager.gameBalanceData.finalDestinationDistance;
 
+        if (!winTriggered && trainDistance >= finalDistance)
+        {
+            winTriggered = true;
+            OnWinCondition?.Invoke();
+        }
+    }
 
     public float GetCurrentSpeed()
     {
