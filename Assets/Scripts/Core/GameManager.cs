@@ -9,6 +9,7 @@ public class GameManager : MonoBehaviour
     public BiomeData biomeData;
     public MapSettings mapSettings;
     public ResourceSettings resourceSettings;
+    public DisasterData disasterData;
     public WagonBuildData[] wagonBuildDatas;
     public List<GameObject> wagonPrefabs; // Each prefab corresponds to a type in wagonBuildDatas order
     public DisasterData disasterData;
@@ -25,6 +26,8 @@ public class GameManager : MonoBehaviour
     private BuildingManager buildingManager;
     private TrainBase trainBase;
     private TrainPhysics trainPhysics;
+    private DisasterManager disasterManager;
+
 
 
     void Awake()
@@ -32,11 +35,19 @@ public class GameManager : MonoBehaviour
         Initialize();
     }
     
-    void Update()
+    
+    public void GameOver(bool won)
     {
-        Debug.Log(resourceManager.GetResourceAmount(ResourceType.WOOD));   
+    if (won)
+        Debug.Log("You Win!");
+    else
+        Debug.Log("You Lose!");
+
+    // You can stop time, show a UI screen, or return to main menu here.
+    Time.timeScale = 0f; // Pause the game as an example
     }
     
+
     public void Initialize()
     {
         // GameProgress
@@ -90,6 +101,15 @@ public class GameManager : MonoBehaviour
             trainBase.Initialize(this, trainPhysics);
         }
         
+        // Disaster
+        disasterManager = new DisasterManager();
+        disasterManager.Initialize(this, disasterData.initialSpeed, disasterData.accelerationRate);
+        
+        // DisasterUpdater
+        var updater = new GameObject("DisasterUpdater").AddComponent<DisasterUpdater>();
+        updater.Initialize(disasterManager);
+
+        
         /*
         Debug.Log("GameManager initialized. Current Distance: " + gameProgressManager.GetDistance());
         Debug.Log("GameManager initialized. Current Distance: " + gameProgressManager.GetDistance());
@@ -101,7 +121,6 @@ public class GameManager : MonoBehaviour
         bool built = wagonManager.TryBuildWagon(WagonType.WOOD_COLLECTOR, this.transform);
         Debug.Log("TryBuildWagon result: " + built);
         
-        */
         // Test: Add resources
         resourceManager.AddResource(ResourceType.WOOD, 20f);
 
@@ -131,6 +150,7 @@ public class GameManager : MonoBehaviour
             }
         }
     }
+        */
 
 
 
