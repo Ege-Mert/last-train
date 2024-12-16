@@ -1,0 +1,193 @@
+Overview
+The game architecture is split into several domains, each addressing a different aspect of gameplay:
+
+Core Domain: High-level managers that coordinate other subsystems.
+Game Progress & Balance: Tracking distance, phases (early/mid/late), and final destination logic.
+Map & Tiles: Generating and managing the game’s progression through nodes/tiles.
+Train & Physics: Handling the train’s movement, physics, and resource consumption.
+Resources & Humans: Managing in-game resources and human workers.
+Wagons & Components: Representing and upgrading train wagons, storage, and conversion.
+Biome & Terrain: Influencing tile generation and resource availability based on biome and terrain conditions.
+Disaster & Events: Chasing disaster mechanics and random events affecting gameplay.
+Upgrade & Events: Handling wagon upgrades and random events triggered throughout the journey.
+All major data-driven parameters (distances, resource weights, biome probabilities, wagon costs, event outcomes) are stored in ScriptableObject assets for easy editing in the Unity Inspector. Managers typically reference these data assets to guide their runtime behavior.
+
+Core Domain
+GameManager
+Purpose: Central orchestrator. Provides a unified interface to access and initialize all other managers.
+
+Key Responsibilities:
+
+Initializing and holding references to WagonManager, ResourceManager, CentralHumanManager, WeightManager, BuildingManager, MapManager, TerrainManager, BiomeManager, EventManager, TrainBase, DisasterManager, and GameProgressManager.
+Serving as a dependency injection point: other classes call GameManager to retrieve managers they need.
+Not heavily involved in logic itself, but essential for overall system integration.
+Game Progress & Balance
+GameBalanceData (ScriptableObject)
+Purpose: Defines key gameplay thresholds and targets such as the final destination distance, early/mid/late game thresholds.
+
+Key Responsibilities:
+
+Stores finalDestinationDistance (e.g., 1200 km) to determine when the game should end.
+Holds earlyGameThreshold and midGameThreshold distances to determine the current game phase.
+Easily adjustable via Inspector.
+GameProgressManager
+Purpose: Tracks how far the player’s train has traveled and determines the current game phase (Early, Mid, Late) based on GameBalanceData.
+
+Key Responsibilities:
+
+Maintains a distanceTraveled value updated as the train moves.
+Uses thresholds from GameBalanceData to return the correct GamePhase.
+Checks if the final destination has been reached (HasReachedFinalDestination()).
+Interactions:
+
+Queried by MapManager to adjust tile generation probabilities.
+Consulted by DisasterManager and TrainBase for distance-based logic.
+Map & Tiles Domain
+MapSettings (ScriptableObject)
+Purpose: Holds parameters for map generation, such as how many nodes to generate per step, and how many nodes are visible to the player (fog of war).
+
+Key Responsibilities:
+
+maxVisibleNodes: The maximum number of map nodes displayed ahead of the player.
+nodesToGenerateEachStep: How many nodes the MapManager should create each time it extends the map.
+baseNodeDistanceIncrement: Distance spacing between generated nodes.
+MapNode
+Purpose: Represents a single segment (tile) of the game’s path.
+
+Key Responsibilities:
+
+Stores biome type, terrain angle, and whether it’s uphill/downhill/flat.
+Records distanceFromStart so we know how far along the journey this node is.
+Holds references to nextNodes for branching paths.
+Interactions:
+
+Created by MapManager during path generation.
+Chosen by players when they pick their next route.
+MapManager
+Purpose: Generates and manages the network of MapNodes that represent the player’s journey. Applies fog of war and branching paths.
+
+Key Responsibilities:
+
+Initializes with GameManager and MapSettings.
+Dynamically generates MapNodes as the player progresses.
+Uses GameProgressManager to determine GamePhase and adjust biome/terrain probabilities.
+Implements ApplyFogOfWar() to limit visible nodes to maxVisibleNodes.
+ChoosePath(node) updates the current route based on player choice and reveals new nodes ahead.
+Interactions:
+
+Queries BiomeManager and TerrainManager to decide biome and terrain angle for new nodes.
+Uses GameProgressManager to know current phase and adjust probabilities accordingly.
+Train & Physics Domain
+(Already introduced in previous steps)
+
+TrainBase
+Purpose: Manages train speed, coal consumption, and force calculations. Checks resources and weight to determine acceleration or deceleration.
+
+Key Responsibilities:
+
+UpdateSpeed() called each frame or time step.
+ConsumeCoal() interacts with ResourceManager for coal consumption.
+Uses TrainPhysics and PhysicsData to calculate motor, friction, and gravity forces.
+Interactions:
+
+Accesses WeightManager for total weight, ResourceManager for coal, TerrainManager for slope angles.
+Speed and position updates help GameProgressManager track distance traveled.
+TrainPhysics
+Purpose: Contains formulas and calculations for forces acting on the train.
+
+Key Responsibilities:
+
+CalculateMotorForce(), CalculateFrictionForce(), CalculateGravityForce() return values used by TrainBase.
+Uses TerrainData and PhysicsData (both ScriptableObjects) to retrieve coefficients and multipliers.
+Resources & Humans
+(Already introduced in previous steps)
+
+ResourceManager
+Purpose: Central storage and management of all resources (wood, scrap, coal, etc.).
+
+Key Responsibilities:
+
+AddResource(), RemoveResource(), CanAddResource() handle resource availability.
+Tracks resource amounts for wagon building, upgrades, and fueling the train.
+CentralHumanManager
+Purpose: Manages the pool of available humans who can be assigned as workers to wagons, increasing their efficiency.
+
+Key Responsibilities:
+
+AddHumans(), AssignWorkers() and RemoveWorkers() methods manage the human workforce.
+Provides GetAvailableHumans() to inform if more workers are available for assignment.
+Wagons & Components
+(Already introduced in previous steps)
+
+Wagon (Abstract) and Subclasses (WoodCollectorWagon, ConverterWagon, StorageWagon, SleepingWagon)
+Purpose: Represent different wagon types with distinct roles.
+
+Key Responsibilities:
+
+Each wagon type integrates components: WorkerComponent, DurabilityComponent, CollectorComponent, ConverterComponent, StorageComponent, HumanCapacityComponent, and UpgradeComponent.
+Wagons can be built, destroyed, and upgraded. They affect train weight and resource flow.
+UpgradeComponent & WagonUpgradeData (ScriptableObjects)
+Purpose: Manage wagon upgrades, applying bonuses at new levels.
+
+Key Responsibilities:
+
+TryUpgrade() checks if resources are sufficient and applies WagonLevelBonus from WagonUpgradeData.
+Biome & Terrain Domain
+BiomeManager & BiomeData
+Purpose: Provide biome-based multipliers and probabilities for node generation.
+
+Key Responsibilities:
+
+Returns probabilities for forest/desert prevalence depending on the current GamePhase.
+May adjust resource collection multipliers for collector wagons.
+TerrainManager & TerrainData
+Purpose: Provide terrain-based angle ranges and friction modifiers.
+
+Key Responsibilities:
+
+GetTerrainData() used by MapManager and TrainPhysics to generate appropriate slopes and calculate friction forces.
+Disaster & Events
+DisasterManager
+Purpose: Tracks and updates the position and speed of a chasing disaster.
+
+Key Responsibilities:
+
+UpdateDisaster(deltaTime) increases disaster speed over time.
+HasCaughtPlayer(trainDistance) determines if disaster overtakes the train, resulting in a lose condition.
+Interactions:
+
+Consults GameProgressManager if disaster speed is influenced by progression.
+If disaster position ≥ train position, game ends in a loss.
+EventManager & EventData (ScriptableObjects)
+Purpose: Handles random events that occur during the journey, affecting resources, wagon durability, or speed.
+
+Key Responsibilities:
+
+TriggerRandomEvent() selects an EventData from a pool and applies its EventEffects.
+EventEffect subclasses (ResourceChangeEffect, DurabilityChangeEffect, etc.) directly modify game state via managers.
+Upgrade & Events Integration
+UpgradeManager (if present) and WagonUpgradeData allow wagons to be improved over time.
+EventManager can trigger events that force the player to adapt resource usage or handle temporary speed reductions.
+Adjusting Key Values in the Inspector
+Final Destination Distance:
+
+Set in GameBalanceData.finalDestinationDistance. GameProgressManager uses it to know when the game ends.
+Number of Visible Nodes:
+
+Adjusted in MapSettings.maxVisibleNodes. MapManager references this to apply fog of war.
+Biome and Terrain Probabilities:
+
+Controlled by modifying BiomeData and TerrainData (if applicable) and logic in BiomeManager.
+Coal Rates, Upgrade Costs, etc.:
+
+Tweakable through respective ScriptableObjects (ResourceSettings, WagonBuildData, PhysicsData, etc.).
+Development Usage
+When starting development, programmers can:
+
+Initialize Managers: Instantiate GameManager and call its Initialize() method, passing references to ScriptableObjects and other managers.
+Load Data: Set references to GameBalanceData, MapSettings, ResourceSettings, WagonBuildData, BiomeData, TerrainData in the Inspector.
+Write Systems: Follow UML relationships to implement code. For example, when coding MapManager, consult this documentation to understand it must call GetGameProgressManager() to know GamePhase and BiomeManager for biome probabilities.
+For team members unfamiliar with a specific system, they can refer to this documentation to:
+
+Find the Manager or Class They Need: If a developer needs to change how biomes are chosen, they look at BiomeManager and BiomeData.
+Understand Dependencies: Before changing how the map is generated, they check how MapManager uses GameProgressManager and BiomeManager for data.
