@@ -4,44 +4,33 @@ using System.Collections.Generic;
 public class EventManager
 {
     private GameManager gameManager;
-    private List<EventData> eventPool = new List<EventData>();
-    //private float timeSinceLastEvent = 0f;
-    private float minEventInterval = 30f; // for example
-    private float maxEventInterval = 60f;
-    private float nextEventTime;
+    private List<EventData> eventPool;
+    private IEventScheduler scheduler;
+    private bool systemActive = false;
 
-    private bool eventInProgress = false;
-
-    public void Initialize(GameManager gm, List<EventData> events)
+    public void Initialize(GameManager gm, List<EventData> events, IEventScheduler sched)
     {
         gameManager = gm;
         eventPool = events;
-        ScheduleNextEvent();
+        scheduler = sched;
+        systemActive = true;
+
+        scheduler.OnIntervalElapsed += OnInterval;
+        scheduler.StartScheduling();
     }
 
-    private void ScheduleNextEvent()
+    private void OnInterval()
     {
-        float interval = Random.Range(minEventInterval, maxEventInterval);
-        nextEventTime = Time.time + interval;
-    }
-
-    public void UpdateEvents()
-    {
-        if (eventInProgress) return;
-
-        if (Time.time >= nextEventTime && eventPool.Count > 0)
+        if (systemActive && eventPool.Count > 0)
         {
             TriggerRandomEvent();
-            ScheduleNextEvent();
         }
     }
 
     public void TriggerRandomEvent()
     {
-        if (eventPool.Count == 0) return;
-
         int index = Random.Range(0, eventPool.Count);
-        EventData chosenEvent = eventPool[index];
+        var chosenEvent = eventPool[index];
         ApplyEvent(chosenEvent);
     }
 
@@ -52,6 +41,13 @@ public class EventManager
         {
             effect.Apply(gameManager);
         }
-        // In future, pause the game, show UI, and wait for player confirmation before ApplyEvent
+        // UI integration for events can happen here or via an OnEventTriggered event
+    }
+
+    public void StopEvents()
+    {
+        systemActive = false;
+        scheduler.StopScheduling();
     }
 }
+
