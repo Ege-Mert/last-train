@@ -67,6 +67,23 @@ public class UpgradeComponent : MonoBehaviour
                 worker.SetMaxWorkersBonus((int)bonus.maxWorkersBonus);
             }
         }
+            
+        StorageWagon storageW = wagon as StorageWagon;
+        if (storageW != null)
+        {
+            var storageComp = storageW.GetComponent<StorageComponent>();
+            if (storageComp != null)
+                storageComp.SetBonusCapacity(bonus.storageCapacityBonus);
+        }
+
+        SleepingWagon sleepingW = wagon as SleepingWagon;
+        if (sleepingW != null)
+        {
+            var humanComp = sleepingW.GetComponent<HumanCapacityComponent>();
+            if (humanComp != null)
+                humanComp.SetBonusCapacity((int)bonus.maxWorkersBonus); // repurpose maxWorkersBonus as human capacity bonus if needed
+        }
+
 
         // If it's a StorageWagon, apply storageCapacityBonus to StorageComponent, etc.
     }
