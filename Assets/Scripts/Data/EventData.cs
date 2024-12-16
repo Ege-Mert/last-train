@@ -5,6 +5,6 @@ using System.Collections.Generic;
 public class EventData : ScriptableObject
 {
     public string eventName;
-    [TextArea] public string description;
+    [TextArea] public string description;   
     public List<EventEffect> effects;
 }

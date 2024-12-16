@@ -1,10 +1,10 @@
 using UnityEngine;
 
-[System.Serializable]
+[CreateAssetMenu(fileName = "ResourceChangeEffect", menuName = "random-events/Resource Change")]
 public class ResourceChangeEffect : EventEffect
 {
     public ResourceType resourceType;
-    public float amountChange; // positive = add, negative = remove
+    public float amountChange;
 
     public override void Apply(GameManager gameManager)
     {
@@ -13,6 +13,7 @@ public class ResourceChangeEffect : EventEffect
             rm.AddResource(resourceType, amountChange);
         else
             rm.RemoveResource(resourceType, Mathf.Abs(amountChange));
-        Debug.Log($"Event: Changed {resourceType} by {amountChange}");
+        
+        Debug.Log($"Event Effect: Changed {resourceType} by {amountChange}");
     }
 }

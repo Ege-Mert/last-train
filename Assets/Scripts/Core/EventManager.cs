@@ -5,7 +5,7 @@ public class EventManager
 {
     private GameManager gameManager;
     private List<EventData> eventPool = new List<EventData>();
-    private float timeSinceLastEvent = 0f;
+    //private float timeSinceLastEvent = 0f;
     private float minEventInterval = 30f; // for example
     private float maxEventInterval = 60f;
     private float nextEventTime;

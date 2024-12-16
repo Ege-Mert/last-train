@@ -12,4 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9e5f58ee3960bd743aac14f024c3c02b, type: 3}
   m_Name: ResourceSettings
   m_EditorClassIdentifier: 
-  resources: []
+  resources:
+  - type: 0
+    weightPerUnit: 0
