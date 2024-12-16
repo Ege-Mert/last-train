@@ -9,9 +9,11 @@ public class GameManager : MonoBehaviour
     public BiomeData biomeData;
     public MapSettings mapSettings;
     public ResourceSettings resourceSettings;
+    public DisasterData disasterData;   
     public WagonBuildData[] wagonBuildDatas;
     public List<GameObject> wagonPrefabs; // Each prefab corresponds to a type in wagonBuildDatas order
-    public DisasterData disasterData;
+    public List<EventData> eventPool; // Assign in inspector
+
 
 
     // Managers
@@ -26,12 +28,20 @@ public class GameManager : MonoBehaviour
     private TrainBase trainBase;
     private TrainPhysics trainPhysics;
     private DisasterManager disasterManager;
+    private EventManager eventManager;
 
 
 
     void Awake()
     {
         Initialize();
+    }
+    
+    void Update()
+    {
+        // disasterUpdater is separate now, so no need here for disaster update.
+        if (eventManager != null)
+            eventManager.UpdateEvents();
     }
     
     
@@ -107,6 +117,11 @@ public class GameManager : MonoBehaviour
         // DisasterUpdater
         var updater = new GameObject("DisasterUpdater").AddComponent<DisasterUpdater>();
         updater.Initialize(disasterManager);
+        
+        // Events
+        eventManager = new EventManager();
+        eventManager.Initialize(this, eventPool);
+
 
         
         /*
@@ -163,4 +178,8 @@ public class GameManager : MonoBehaviour
     public CentralHumanManager GetCentralHumanManager() { return centralHumanManager; }
     public WagonManager GetWagonManager() { return wagonManager; }
     public BuildingManager GetBuildingManager() { return buildingManager; }
+    public EventManager GetEventManager() { return eventManager; }
+    public TrainBase GetTrainBase() { return trainBase; }
+    public TrainPhysics GetTrainPhysics() { return trainPhysics; }
+    public DisasterManager GetDisasterManager() { return disasterManager; }
 }
