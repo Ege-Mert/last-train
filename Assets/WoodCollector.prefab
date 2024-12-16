@@ -102,6 +102,7 @@ MonoBehaviour:
   wagonType: 0
   wagonName: wodyColector
   baseWeight: 10
+  upgradeData: {fileID: 11400000, guid: a9279604c96aa7648875349b0476d7b6, type: 2}
 --- !u!114 &7918726518481363889
 MonoBehaviour:
   m_ObjectHideFlags: 0

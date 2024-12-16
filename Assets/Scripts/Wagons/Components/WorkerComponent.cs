@@ -5,11 +5,13 @@ public class WorkerComponent : MonoBehaviour
     [SerializeField] private int currentWorkers = 0;
     [SerializeField] private int maxWorkers = 5;
     private CentralHumanManager humanManager;
-
+    private int maxWorkersBonus = 0;
+    
     public void Initialize(CentralHumanManager chm)
     {
         humanManager = chm;
     }
+    
 
     public bool AddWorkers(int count)
     {
@@ -53,6 +55,12 @@ public class WorkerComponent : MonoBehaviour
     {
         return currentWorkers;
     }
+    
+    public void SetMaxWorkersBonus(int bonus)
+    {
+        maxWorkersBonus = bonus;
+    }
+
 
     public int GetMaxWorkers()
     {
