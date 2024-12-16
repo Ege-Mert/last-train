@@ -1,0 +1,95 @@
+classDiagram %% ====================== %% CORE DOMAIN %% ====================== class GameManager { -WagonManager wagonManager -ResourceManager resourceManager -CentralHumanManager humanManager -WeightManager weightManager -BuildingManager buildingManager +Initialize() +GetWagonManager(): WagonManager +GetResourceManager(): ResourceManager +GetHumanManager(): CentralHumanManager +GetWeightManager(): WeightManager +GetBuildingManager(): BuildingManager }
+class WagonManager { -List<Wagon> wagons -GameManager gameManager +Initialize(gameManager: GameManager) +CreateWagon(type: WagonType): Wagon +DestroyWagon(wagon: Wagon) +GetAllWagons(): List<Wagon> }
+class ResourceManager { -Dictionary<ResourceType,float> resourceAmounts -GameManager gameManager +Initialize(gameManager: GameManager) +CanAddResource(type: ResourceType, amount: float): bool +AddResource(type: ResourceType, amount: float) +RemoveResource(type: ResourceType, amount: float): bool +GetResourceAmount(type: ResourceType): float }
+class CentralHumanManager { -int totalHumans -int availableHumans -GameManager gameManager +Initialize(gameManager: GameManager) +AddHumans(count: int) +AssignWorkers(wagon: Wagon, count: int): bool +RemoveWorkers(wagon: Wagon, count: int): bool +GetAvailableHumans(): int }
+class WeightManager { -float totalWeight -GameManager gameManager +Initialize(gameManager: GameManager) +GetTotalWeight(): float +UpdateWeightOnResourceChange(type: ResourceType, delta: float) +UpdateWeightOnWagonChange(wagon: Wagon, added: bool) }
+class BuildingManager { -List<WagonBuildData> availableWagons -GameManager gameManager +Initialize(gameManager: GameManager) +TryBuildWagon(type: WagonType): bool +GetWagonCost(type: WagonType): List<ResourceAmount> +CanBuildWagon(type: WagonType): bool }
+%% ====================== %% WAGON DOMAIN %% ====================== class Wagon { <<abstract>> -string wagonName -float baseWeight -bool isOperating -GameManager gameManager +Initialize(gameManager: GameManager) +CanOperate(): bool +StartOperations() +StopOperations() +GetWeight(): float }
+class WoodCollectorWagon { +CanOperate(): bool +StartOperations() +StopOperations() }
+class ConverterWagon { +CanOperate(): bool +StartOperations() +StopOperations() }
+class StorageWagon { +CanOperate(): bool +StartOperations() +StopOperations() +GetStorageCapacity(): float }
+class SleepingWagon { +CanOperate(): bool +StartOperations() +StopOperations() +GetHumanCapacity(): int }
+class WagonType { %% enumeration <<enumeration>> WOOD_COLLECTOR CONVERTER STORAGE SLEEPING }
+%% Relationships GameManager --> WagonManager GameManager --> ResourceManager GameManager --> CentralHumanManager GameManager --> WeightManager GameManager --> BuildingManager
+WagonManager o-- Wagon Wagon <|-- WoodCollectorWagon Wagon <|-- ConverterWagon Wagon <|-- StorageWagon Wagon <|-- SleepingWagon
+classDiagram %% ====================== %% RESOURCE DOMAIN & CONFIG DATA %% ======================
+class ResourceSettings { <<ScriptableObject>> -ResourceData[] resources +GetResourceWeight(type: ResourceType): float +GetResourceName(type: ResourceType): string }
+class ResourceData { +type: ResourceType +weightPerUnit: float +displayName: string }
+class ResourceType { %% enumeration WOOD SCRAP COAL HUMAN }
+class ResourceAmount { +type: ResourceType +amount: float }
+%% Building Data class WagonBuildData { <<ScriptableObject>> +type: WagonType +constructionCosts: ResourceAmount[] +description: string +icon: Sprite }
+class BuildingManager { -List<WagonBuildData> availableWagons -GameManager gameManager +Initialize(gameManager: GameManager) +TryBuildWagon(type: WagonType): bool +GetWagonCost(type: WagonType): List<ResourceAmount> +CanBuildWagon(type: WagonType): bool }
+class ResourceManager { -Dictionary<ResourceType,float> resourceAmounts -GameManager gameManager -ResourceSettings resourceSettings +Initialize(gameManager: GameManager, resourceSettings: ResourceSettings) +CanAddResource(type: ResourceType, amount: float): bool +AddResource(type: ResourceType, amount: float) +RemoveResource(type: ResourceType, amount: float): bool +GetResourceAmount(type: ResourceType): float }
+%% Relationships BuildingManager --> WagonBuildData ResourceManager --> ResourceSettings ResourceSettings --> ResourceData ResourceData --> ResourceType WagonBuildData --> ResourceAmount ResourceAmount --> ResourceType
+classDiagram %% ====================== %% TRAIN & PHYSICS DOMAIN %% ======================
+class TrainBase { -float currentSpeed -GameManager gameManager -PhysicsData physicsData +Initialize(gameManager: GameManager, physicsData: PhysicsData) +UpdateSpeed(deltaTime: float) +ConsumeCoal(deltaTime: float) +GetCurrentSpeed(): float +CalculateForces(): ForceCalculationResult }
+class TrainPhysics { -GameManager gameManager +Initialize(gameManager: GameManager) +CalculateMotorForce(coalQuality: int, coalConsumptionRate: float): float +CalculateFrictionForce(totalWeight: float, frictionCoefficient: float): float +CalculateGravityForce(totalWeight: float, angle: float): float +GetTotalForce(motor: float, friction: float, gravity: float): float }
+class PhysicsData { <<ScriptableObject>> +baseMotorForce: float +baseFrictionCoefficient: float +maxInclineAngle: float +coalQualityMultipliers: QualityMultiplier[] +GetFrictionCoefficient(): float +GetMotorForceForQuality(qualityLevel: int): float +GetMaxInclineAngle(): float }
+class QualityMultiplier { +qualityLevel: int +multiplier: float }
+class ForceCalculationResult { +motorComponent: float +frictionComponent: float +gravityComponent: float +totalForce: float }
+%% Relationships TrainBase --> TrainPhysics TrainBase --> PhysicsData PhysicsData --> QualityMultiplier TrainBase --> GameManager TrainPhysics --> GameManager TrainBase --> ForceCalculationResult
+classDiagram %% ====================== %% TRAIN & PHYSICS DOMAIN (Detailed) %% ======================
+class GameManager { %% Already defined previously +GetResourceManager(): ResourceManager +GetWeightManager(): WeightManager +GetBuildingManager(): BuildingManager +GetHumanManager(): CentralHumanManager +GetWagonManager(): WagonManager +GetTerrainManager(): TerrainManager }
+class TrainBase { -float currentSpeed -GameManager gameManager -PhysicsData physicsData -float coalConsumptionRatePerSecond -int currentCoalQualityLevel +Initialize(gameManager: GameManager, physicsData: PhysicsData, coalConsumptionRate: float, initialCoalQuality: int) +UpdateSpeed(deltaTime: float) +ConsumeCoal(deltaTime: float): bool +GetCurrentSpeed(): float +CalculateForces(deltaTime: float): ForceCalculationResult +GetCurrentInclineAngle(): float }
+class TrainPhysics { -GameManager gameManager -TerrainData terrainData +Initialize(gameManager: GameManager, terrainData: TerrainData) +CalculateMotorForce(baseMotorForce: float, qualityMultiplier: float, coalConsumptionRate: float): float +CalculateFrictionForce(totalWeight: float, frictionCoefficient: float): float +CalculateGravityForce(totalWeight: float, angle: float): float +GetTotalForce(motor: float, friction: float, gravity: float): float }
+class PhysicsData { <<ScriptableObject>> +baseMotorForce: float +baseFrictionCoefficient: float +coalQualityMultipliers: QualityMultiplier[] +GetFrictionCoefficient(): float +GetMotorForceForQuality(qualityLevel: int): float +GetQualityMultiplier(qualityLevel: int): float }
+class QualityMultiplier { +qualityLevel: int +multiplier: float }
+class TerrainManager { -GameManager gameManager +Initialize(gameManager: GameManager) +GetCurrentTileAngle(): float +GetTerrainType(): TerrainType }
+class TerrainData { <<ScriptableObject>> +maxInclineAngle: float +flatFrictionModifier: float +inclineFrictionModifier: float +declineFrictionModifier: float +GetFrictionModifierForTerrain(type: TerrainType): float +IsAngleValid(angle: float): bool }
+class TerrainType { %% Enumeration FLAT INCLINE DECLINE }
+class ForceCalculationResult { +motorComponent: float +frictionComponent: float +gravityComponent: float +totalForce: float }
+%% Relationships TrainBase --> GameManager TrainBase --> PhysicsData TrainBase --> ForceCalculationResult TrainBase --> TrainPhysics
+TrainPhysics --> TerrainData PhysicsData --> QualityMultiplier
+TerrainManager --> TerrainType GameManager --> TerrainManager
+classDiagram %% ========================================== %% WAGON COMPONENTS, UPGRADE & BIOME DOMAIN %% ==========================================
+%% WAGON COMPONENTS class WorkerComponent { -int currentWorkers -int maxWorkers -CentralHumanManager humanManager +Initialize(gameManager: GameManager, maxWorkers: int) +TryAddWorkers(count: int): bool +TryRemoveWorkers(count: int): bool +GetEfficiency(): float }
+class DurabilityComponent { -float currentDurability -float maxDurability -float damageRate +Initialize(gameManager: GameManager, maxDurability: float, damageRate: float) +TakeDamage(amount: float) +Repair() +IsBroken(): bool }
+class CollectorComponent { -ResourceType collectedResourceType -float baseCollectionRate -WorkerComponent workerComponent -GameManager gameManager +Initialize(gameManager: GameManager, resourceType: ResourceType, baseRate: float, workerComponent: WorkerComponent) +CalculateCollectionRate(): float +CollectResources(deltaTime: float) }
+class ConverterComponent { -ResourceType inputType -ResourceType outputType -float conversionRate -WorkerComponent workerComponent -GameManager gameManager +Initialize(gameManager: GameManager, inputType: ResourceType, outputType: ResourceType, rate: float, workerComponent: WorkerComponent) +ConvertResources(deltaTime: float) }
+class StorageComponent { -float baseCapacity -float currentCapacity +Initialize(gameManager: GameManager, baseCapacity: float) +GetMaxCapacity(): float +CanStore(type: ResourceType, amount: float): bool +StoreResource(type: ResourceType, amount: float): bool +RetrieveResource(type: ResourceType, amount: float): bool }
+class HumanCapacityComponent { -int baseCapacity -int currentCapacity +Initialize(gameManager: GameManager, baseCapacity: int) +GetCurrentCapacity(): int +AddHumans(count: int): bool +RemoveHumans(count: int): bool }
+%% UPGRADE SYSTEM class UpgradeComponent { -WagonUpgradeData upgradeData -int currentLevel -GameManager gameManager +Initialize(gameManager: GameManager, upgradeData: WagonUpgradeData) +CanUpgrade(): bool +TryUpgrade(): bool +GetCurrentLevel(): int +ApplyLevelEffects() }
+class WagonUpgradeData { <<ScriptableObject>> +maxLevel: int +upgradeCosts: ResourceAmount[][] +levelBonuses: WagonLevelBonus[] +GetUpgradeCost(level: int): ResourceAmount[] +GetLevelBonus(level: int): WagonLevelBonus +CanUpgrade(level: int): bool }
+class WagonLevelBonus { +storageBonus: float +collectionRateBonus: float +conversionRateBonus: float +maxWorkersBonus: int +humanCapacityBonus: int +durabilityBonus: float }
+%% BIOME SYSTEM class BiomeManager { -BiomeData currentBiomeData -GameManager gameManager +Initialize(gameManager: GameManager, biomeData: BiomeData) +GetWoodCollectionMultiplier(): float +GetScrapCollectionMultiplier(): float }
+class BiomeData { <<ScriptableObject>> +woodCollectionMultiplier: float +scrapCollectionMultiplier: float }
+%% WAGON INTEGRATION EXAMPLES class WoodCollectorWagon { -WorkerComponent worker -DurabilityComponent durability -CollectorComponent collector -UpgradeComponent upgrade +InitializeComponents(gameManager: GameManager) +CanOperate(): bool +StartOperations() +StopOperations() }
+class ConverterWagon { -WorkerComponent worker -DurabilityComponent durability -ConverterComponent converter -UpgradeComponent upgrade +InitializeComponents(gameManager: GameManager) +CanOperate(): bool +StartOperations() +StopOperations() }
+class StorageWagon { -DurabilityComponent durability -StorageComponent storage -UpgradeComponent upgrade +InitializeComponents(gameManager: GameManager) +CanOperate(): bool +StartOperations() +StopOperations() }
+class SleepingWagon { -DurabilityComponent durability -HumanCapacityComponent humanCapacity -UpgradeComponent upgrade +InitializeComponents(gameManager: GameManager) +CanOperate(): bool +StartOperations() +StopOperations() }
+%% RELATIONSHIPS WorkerComponent --> CentralHumanManager CollectorComponent --> WorkerComponent ConverterComponent --> WorkerComponent WagonUpgradeData --> WagonLevelBonus UpgradeComponent --> WagonUpgradeData BiomeManager --> BiomeData CollectorComponent --> BiomeManager
+WoodCollectorWagon --> WorkerComponent WoodCollectorWagon --> DurabilityComponent WoodCollectorWagon --> CollectorComponent WoodCollectorWagon --> UpgradeComponent
+ConverterWagon --> WorkerComponent ConverterWagon --> DurabilityComponent ConverterWagon --> ConverterComponent ConverterWagon --> UpgradeComponent
+StorageWagon --> DurabilityComponent StorageWagon --> StorageComponent StorageWagon --> UpgradeComponent
+SleepingWagon --> DurabilityComponent SleepingWagon --> HumanCapacityComponent SleepingWagon --> UpgradeComponent
+classDiagram %% ====================== %% EVENT SYSTEM %% ======================
+class EventManager { -GameManager gameManager -EventData[] eventPool +Initialize(gameManager: GameManager, eventPool: EventData[]) +TriggerRandomEvent() +ApplyEvent(event: EventData) }
+class EventData { <<ScriptableObject>> +eventName: string +description: string +effects: EventEffect[] +GetEffects(): EventEffect[] }
+class EventEffect { <<abstract>> +Apply(gameManager: GameManager) }
+class ResourceChangeEffect { +resourceChanges: ResourceAmount[] +Apply(gameManager: GameManager) }
+class DurabilityChangeEffect { +durabilityDelta: float +Apply(gameManager: GameManager) }
+class HumanChangeEffect { +humanDelta: int +Apply(gameManager: GameManager) }
+class SpeedChangeEffect { +speedMultiplier: float +duration: float +Apply(gameManager: GameManager) }
+%% Relationships EventManager --> EventData EventData --> EventEffect EventEffect <|-- ResourceChangeEffect EventEffect <|-- DurabilityChangeEffect EventEffect <|-- HumanChangeEffect EventEffect <|-- SpeedChangeEffect
+classDiagram
+%% ====================== %% CORE DATA & PROGRESSION %% ====================== class GameBalanceData { <<ScriptableObject>> +finalDestinationDistance: float +earlyGameThreshold: float +midGameThreshold: float %% Additional balancing fields }
+class GameProgressManager { -float distanceTraveled -GameBalanceData balanceData +Initialize(gameManager: GameManager, data: GameBalanceData) +UpdateDistance(deltaDistance: float) +GetDistance(): float +GetGamePhase(): GamePhase +HasReachedFinalDestination(): bool }
+enum GamePhase { EARLY MID LATE }
+%% ====================== %% MAP SYSTEM %% ====================== class MapSettings { <<ScriptableObject>> +maxVisibleNodes: int +nodesToGenerateEachStep: int %% Additional map generation parameters }
+class MapNode { +biomeType: BiomeType +terrainAngle: float +isUphill: bool +isDownhill: bool +isFlat: bool +distanceFromStart: float +List<MapNode> nextNodes }
+enum BiomeType { FOREST DESERT %% Additional biome types }
+class MapManager { -GameManager gameManager -MapSettings mapSettings -List<MapNode> visibleNodes +Initialize(gameManager: GameManager, mapSettings: MapSettings) +GenerateNextNodes(count: int): List<MapNode> +RevealNextNodes() +GetVisibleNodes(): List<MapNode> +ChoosePath(node: MapNode) +ApplyFogOfWar() }
+%% ====================== %% DISASTER SYSTEM %% ====================== class DisasterManager { -float disasterSpeed -float accelerationRate -float disasterPosition -GameManager gameManager +Initialize(gameManager: GameManager, initialSpeed: float, accelerationRate: float) +UpdateDisaster(deltaTime: float) +GetDisasterPosition(): float +HasCaughtPlayer(trainDistance: float): bool }
+%% ====================== %% RELATIONSHIPS %% ====================== GameManager --> GameProgressManager GameManager --> MapManager GameManager --> DisasterManager
+GameProgressManager --> GameBalanceData MapManager --> MapSettings MapManager --> MapNode MapNode --> BiomeType GameProgressManager --> GamePhase
+classDiagram
+%% FROM PREVIOUS SYSTEMS: class GameManager { +Initialize() +GetWagonManager(): WagonManager +GetResourceManager(): ResourceManager +GetHumanManager(): CentralHumanManager +GetWeightManager(): WeightManager +GetBuildingManager(): BuildingManager +GetTerrainManager(): TerrainManager +GetBiomeManager(): BiomeManager +GetEventManager(): EventManager +GetGameProgressManager(): GameProgressManager +GetMapManager(): MapManager +GetDisasterManager(): DisasterManager +GetTrainBase(): TrainBase }
+class TerrainManager { +GetTerrainData(): TerrainData }
+class BiomeManager { +GetBiomeData(biome: BiomeType): BiomeData }
+class BiomeData { <<ScriptableObject>> +woodCollectionMultiplier: float +scrapCollectionMultiplier: float }
+class TerrainData { <<ScriptableObject>> +maxInclineAngle: float +GetFrictionModifierForTerrain(type: TerrainType): float }
+GameManager --> TerrainManager GameManager --> BiomeManager BiomeManager --> BiomeData TerrainManager --> TerrainData
+%% The MapManager uses BiomeManager and TerrainManager indirectly %% when generating nodes: MapManager --> BiomeManager MapManager --> TerrainManager
+classDiagram class DisasterData { <<ScriptableObject>> +initialSpeed: float +accelerationRate: float }
+DisasterManager --> DisasterData
+
