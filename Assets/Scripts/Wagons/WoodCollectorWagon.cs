@@ -28,13 +28,6 @@ public class WoodCollectorWagon : Wagon
 
     void Update()
     {
-        // Check durability
-        var durability = GetComponent<DurabilityComponent>();
-        if (durability != null && durability.IsBroken())
-        {
-            // Wagon is broken, do not collect
-            return;
-        }
         // Collect resources each frame for demonstration purposes
         // In a real game, might collect only if train is moving or under certain conditions
         if (collectorComponent != null)
