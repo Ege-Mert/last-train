@@ -10,9 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 55be6e77df5901947b62c09e8eed38b5, type: 3}
-  m_Name: WagonBuildData
+  m_Name: WoodWagonBuildData
   m_EditorClassIdentifier: 
   wagonType: 0
-  constructionCosts: []
+  constructionCosts:
+  - type: 0
+    amount: 5
   description: 
   icon: {fileID: 0}

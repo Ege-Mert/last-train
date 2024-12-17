@@ -119,6 +119,7 @@ public class GameManager : MonoBehaviour
         GetTrainBase().OnWinCondition += () => endingsManager.HandleGameOver(true);
 
 
+        resourceManager.AddResource(ResourceType.WOOD, 20f);
 
         
         /*
