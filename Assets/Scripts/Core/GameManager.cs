@@ -34,11 +34,25 @@ public class GameManager : MonoBehaviour
     private GameEndingsManager endingsManager;
 
 
-
+    public static GameManager Instance { get; private set; }
 
     void Awake()
     {
+        if (Instance == null)
+        {
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
         Initialize();
+    }
+    private void Update()
+    {
+        GetCentralHumanManager().GetAvailableHumans();
+        GetCentralHumanManager().GetTotalHumans();
     }
 
     public void Initialize()
@@ -121,7 +135,7 @@ public class GameManager : MonoBehaviour
 
         resourceManager.AddResource(ResourceType.WOOD, 20f);
 
-        
+
         /*
         Debug.Log("GameManager initialized. Current Distance: " + gameProgressManager.GetDistance());
         Debug.Log("GameManager initialized. Current Distance: " + gameProgressManager.GetDistance());
@@ -147,7 +161,6 @@ public class GameManager : MonoBehaviour
         }
         resourceManager.AddResource(ResourceType.COAL, 100f);
         
-        GetCentralHumanManager().AddHumans(10);
         
     var wagons = GetWagonManager().GetActiveWagons();
     foreach (var w in wagons)
@@ -163,7 +176,7 @@ public class GameManager : MonoBehaviour
         }
     }
         */
-
+        GetCentralHumanManager().AddHumans(100);
 
 
     }

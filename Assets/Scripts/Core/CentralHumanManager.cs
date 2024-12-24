@@ -61,6 +61,16 @@ public class CentralHumanManager
         }
         return false;
     }
+    public void HandleWagonDestruction(object target)
+    {
+        if (assignedWorkers.ContainsKey(target))
+        {
+            int workersToReassign = assignedWorkers[target];
+            availableHumans += workersToReassign;
+            assignedWorkers.Remove(target);
+            Debug.Log($"Wagon destroyed: Reassigned {workersToReassign} workers back to available pool. Now available: {availableHumans}");
+        }
+    }
 
     public int GetAvailableHumans()
     {

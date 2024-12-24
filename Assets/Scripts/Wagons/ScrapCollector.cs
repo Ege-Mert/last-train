@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class WoodCollectorWagon : Wagon
+public class ScrapCollector : Wagon
 {
     private WorkerComponent workerComponent;
     private CollectorComponent collectorComponent;

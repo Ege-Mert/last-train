@@ -13,19 +13,20 @@ public class TrainBase : MonoBehaviour
     public float coalQualityMultiplier = 1f; // In future, this might depend on wagon upgrades
     public float maxSpeed = 20f; // just a cap for safety
     public float acceleration = 0f; // computed
-    private float currentSpeed = 0f;
+    public float currentSpeed = 0f; // it was private
     
     private bool winTriggered = false;
 
     private GameManager gameManager;
     private TrainPhysics trainPhysics;
 
-    void Start()
-    {
-        // Normally, we'd call Initialize from GameManager once references are set.
-        // For now, let's assume this is called after GameManager is ready.
-    }
-
+    private ResourceType[] coalPriorityOrder = 
+    { 
+        ResourceType.COAL_HIGH, 
+        ResourceType.COAL_MED, 
+        ResourceType.COAL_LOW 
+    };
+    
     public void Initialize(GameManager gm, TrainPhysics physics)
     {
         gameManager = gm;
@@ -44,7 +45,8 @@ public class TrainBase : MonoBehaviour
     {
         // 1. Consume coal to produce motor force
         float coalNeeded = coalConsumptionRate * deltaTime;
-        bool hasCoal = gameManager.GetResourceManager().RemoveResource(ResourceType.COAL, coalNeeded);
+        bool hasCoal = TryConsumeCoal(coalNeeded);
+
         float motorForce = 0f;
         if (hasCoal)
         {
@@ -52,7 +54,6 @@ public class TrainBase : MonoBehaviour
         }
         else
         {
-            // No coal means no motor force
             motorForce = 0f;
         }
 
@@ -106,6 +107,31 @@ public class TrainBase : MonoBehaviour
 
         float totalWeight = wagonWeight; // If you have a base locomotive weight, add it here.
         return totalWeight;
+    }
+    
+    private bool TryConsumeCoal(float amount)
+    {
+        var rm = gameManager.GetResourceManager();
+
+        foreach (var coalType in coalPriorityOrder)
+        {
+            // Implement CanRemoveResource if needed, or just try RemoveResource directly
+            if (rm.RemoveResource(coalType, amount))
+            {
+                AdjustCoalQualityMultiplier(coalType);
+                return true;
+            }
+        }
+
+        coalQualityMultiplier = 1.0f;
+        return false;
+    }
+
+    private void AdjustCoalQualityMultiplier(ResourceType coalType)
+    {
+        if (coalType == ResourceType.COAL_HIGH) coalQualityMultiplier = 1.5f;
+        else if (coalType == ResourceType.COAL_MED) coalQualityMultiplier = 1.2f;
+        else coalQualityMultiplier = 1.0f;
     }
 
     private float GetCurrentTerrainAngle()

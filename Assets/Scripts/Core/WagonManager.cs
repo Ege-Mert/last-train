@@ -6,6 +6,7 @@ public class WagonManager
     private GameManager gameManager;
     private Dictionary<WagonType, WagonBuildData> availableWagons = new Dictionary<WagonType, WagonBuildData>();
     private List<Wagon> activeWagons = new List<Wagon>();
+    
 
     // Reference to wagon prefabs for each type
     private Dictionary<WagonType, GameObject> wagonPrefabs = new Dictionary<WagonType, GameObject>();
@@ -67,14 +68,15 @@ public class WagonManager
         return true;
     }
 
-    public void DestroyWagon(Wagon w)
+    public void DestroyWagon(Wagon wagon)
     {
-        if (activeWagons.Contains(w))
-        {
-            activeWagons.Remove(w);
-            GameObject.Destroy(w.gameObject);
-            Debug.Log("Wagon destroyed.");
-        }
+        if (wagon == null) return;
+
+        Debug.Log($"Destroying wagon: {wagon.name}");
+        
+        // The WorkerComponent's OnDestroy will handle worker reassignment
+        activeWagons.Remove(wagon);
+        Object.Destroy(wagon.gameObject);
     }
 
     public List<Wagon> GetActiveWagons()

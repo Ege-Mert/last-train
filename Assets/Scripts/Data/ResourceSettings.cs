@@ -4,7 +4,9 @@ public enum ResourceType
 {
     WOOD,
     SCRAP,
-    COAL,
+    COAL_LOW,
+    COAL_MED,
+    COAL_HIGH,
     HUMAN
 }
 

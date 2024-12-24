@@ -3,7 +3,7 @@ using UnityEngine;
 public class UpgradeComponent : MonoBehaviour
 {
     [SerializeField] private WagonUpgradeData upgradeData;
-    [SerializeField] private int currentLevel = 1; // starts at level 1
+    [SerializeField] private int currentLevel = 1;
 
     private GameManager gameManager;
     private Wagon wagon;
@@ -40,35 +40,66 @@ public class UpgradeComponent : MonoBehaviour
 
         // Upgrade level
         currentLevel++;
-        ApplyCurrentLevelBonus();
-        Debug.Log($"{wagon.name} upgraded to level {currentLevel}.");
+        bool bonusApplied = ApplyCurrentLevelBonus();
+        Debug.Log($"{wagon.name} upgraded to level {currentLevel}. Bonus applied: {bonusApplied}");
         return true;
     }
 
-    private void ApplyCurrentLevelBonus()
+    private bool ApplyCurrentLevelBonus()
     {
         var bonus = upgradeData.GetUpgradeBonus(currentLevel);
-        if (bonus == null) return;
-
-        // Apply bonuses to wagon components
-        // For example, if this is a WoodCollectorWagon:
-        WoodCollectorWagon woodWagon = wagon as WoodCollectorWagon;
-        if (woodWagon != null)
+        if (bonus == null)
         {
-            var collector = woodWagon.GetComponent<CollectorComponent>();
-            if (collector != null)
-            {
-                collector.SetBonusCollectionRate(bonus.collectionRateBonus);
-            }
-
-            var worker = woodWagon.GetComponent<WorkerComponent>();
-            if (worker != null)
-            {
-                worker.SetMaxWorkersBonus((int)bonus.maxWorkersBonus);
-            }
+            Debug.LogError("No upgrade bonus found for level " + currentLevel);
+            return false;
         }
 
-        // If it's a StorageWagon, apply storageCapacityBonus to StorageComponent, etc.
+        bool anyBonusApplied = false;
+
+        // Get all potential components
+        var collector = GetComponent<CollectorComponent>();
+        var worker = GetComponent<WorkerComponent>();
+        var storage = GetComponent<StorageComponent>();
+        var humanCapacity = GetComponent<HumanCapacityComponent>();
+        var converter = GetComponent<ConverterComponent>();
+
+        // Apply bonuses to whatever components exist
+        if (collector != null)
+        {
+            collector.SetBonusCollectionRate(bonus.collectionRateBonus);
+            Debug.Log($"Applied collection rate bonus: {bonus.collectionRateBonus}");
+            anyBonusApplied = true;
+        }
+
+        if (worker != null)
+        {
+            worker.SetMaxWorkersBonus((int)bonus.maxWorkersBonus);
+            Debug.Log($"Applied max workers bonus: {bonus.maxWorkersBonus}");
+            anyBonusApplied = true;
+        }
+
+        if (storage != null)
+        {
+            storage.SetBonusCapacity(bonus.storageCapacityBonus);
+            Debug.Log($"Applied storage capacity bonus: {bonus.storageCapacityBonus}");
+            anyBonusApplied = true;
+        }
+
+        if (humanCapacity != null)
+        {
+            humanCapacity.SetBonusCapacity((int)bonus.maxWorkersBonus);
+            Debug.Log($"Applied human capacity bonus: {bonus.maxWorkersBonus}");
+            anyBonusApplied = true;
+        }
+        if (converter != null)
+    {
+        // Set the converter to produce the specified coal quality resource
+        converter.SetCoalQualityOutput(bonus.coalOutputResource);
+        Debug.Log($"Set converter to produce: {bonus.coalOutputResource}");
+        anyBonusApplied = true;
+    }
+
+        return anyBonusApplied;
     }
 
     public int GetCurrentLevel()

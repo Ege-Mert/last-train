@@ -16,3 +16,4 @@ MonoBehaviour:
   description: Randomly calls scriptable object events that is in the list.
   effects:
   - {fileID: 11400000, guid: 7770a0089e82d054998b39932c783fcf, type: 2}
+  - {fileID: 11400000, guid: 7770a0089e82d054998b39932c783fcf, type: 2}

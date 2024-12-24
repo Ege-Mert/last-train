@@ -11,10 +11,10 @@ public class UpgradeCost
 public class UpgradeBonus
 {
     public int level;
-    public float collectionRateBonus; // example for collector wagons
-    public int maxWorkersBonus;       // example for worker capacity
-    public float storageCapacityBonus; // for storage wagons
-    // Add fields as needed for other wagons
+    public float collectionRateBonus; 
+    public int maxWorkersBonus;       
+    public float storageCapacityBonus; 
+    public ResourceType coalOutputResource = ResourceType.COAL_LOW;
 }
 
 [CreateAssetMenu(fileName = "WagonUpgradeData", menuName = "last-train/Wagon Upgrade Data")]
