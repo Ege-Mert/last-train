@@ -5,6 +5,7 @@ public class CollectorComponent : MonoBehaviour
     [SerializeField] private ResourceType collectedResourceType = ResourceType.WOOD;
     [SerializeField] private float baseCollectionRate = 1f;
     public float bonusCollectionRate = 0f;
+
     private WorkerComponent workerComponent;
     private GameManager gameManager;
 
@@ -22,17 +23,16 @@ public class CollectorComponent : MonoBehaviour
     public void CollectResources(float deltaTime)
     {
         if (gameManager == null || workerComponent == null) return;
-
-        // Check if there are any workers assigned
-        if (workerComponent.GetCurrentWorkers() <= 0)
-        {
-            return; // Don't collect if no workers
-        }
+        // Check if workers are assigned
+        if (workerComponent.GetCurrentWorkers() <= 0) return;
 
         float efficiency = workerComponent.GetEfficiency();
         float effectiveRate = (baseCollectionRate + bonusCollectionRate) * efficiency;
         float amountCollected = effectiveRate * deltaTime;
 
-        gameManager.GetResourceManager().AddResource(collectedResourceType, amountCollected);
+        // We rely on partial-add logic in ResourceManager
+        // ResourceManager will raise events if capacity is exceeded,
+        // so no leftover calculation or penalty call is needed here.
+        gameManager.GetResourceManager().AddResourcePartial(collectedResourceType, amountCollected);
     }
 }

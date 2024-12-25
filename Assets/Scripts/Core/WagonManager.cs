@@ -6,15 +6,17 @@ public class WagonManager
     private GameManager gameManager;
     private Dictionary<WagonType, WagonBuildData> availableWagons = new Dictionary<WagonType, WagonBuildData>();
     private List<Wagon> activeWagons = new List<Wagon>();
-    
-
-    // Reference to wagon prefabs for each type
     private Dictionary<WagonType, GameObject> wagonPrefabs = new Dictionary<WagonType, GameObject>();
+    
+    private GlobalStorageSystem globalStorageSystem;
 
-    public void Initialize(GameManager gm, WagonBuildData[] wagonBuildDatas, Dictionary<WagonType, GameObject> prefabs)
+
+    public void Initialize(GameManager gm, WagonBuildData[] wagonBuildDatas, Dictionary<WagonType, GameObject> prefabs, GlobalStorageSystem storageSystem)
     {
         gameManager = gm;
         wagonPrefabs = prefabs;
+        globalStorageSystem = storageSystem;
+        
 
         foreach (var data in wagonBuildDatas)
         {
@@ -53,18 +55,18 @@ public class WagonManager
 
         // Instantiate wagon
         GameObject prefab = wagonPrefabs[type];
-        if (prefab == null)
-        {
-            Debug.LogError("No prefab found for " + type);
-            return false;
-        }
-
         GameObject wagonGO = GameObject.Instantiate(prefab, parent);
         Wagon w = wagonGO.GetComponent<Wagon>();
         w.Initialize(gameManager);
         activeWagons.Add(w);
 
-        Debug.Log("Built wagon of type: " + type);
+        // If it has a StorageComponent, add it to the global storage system
+        var storageComp = wagonGO.GetComponent<StorageComponent>();
+        if (storageComp != null)
+        {
+            globalStorageSystem.AddStorageComponent(storageComp);
+        }
+
         return true;
     }
 

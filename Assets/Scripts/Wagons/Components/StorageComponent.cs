@@ -13,6 +13,7 @@ public class StorageComponent : MonoBehaviour
     public void SetBonusCapacity(float bonus)
     {
         bonusCapacity = bonus;
+
     }
 
     public float GetMaxCapacity()

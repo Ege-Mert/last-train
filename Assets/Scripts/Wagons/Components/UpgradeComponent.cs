@@ -81,6 +81,7 @@ public class UpgradeComponent : MonoBehaviour
         if (storage != null)
         {
             storage.SetBonusCapacity(bonus.storageCapacityBonus);
+            gameManager.GetGlobalStorageSystem()?.RecalculateCapacity();
             Debug.Log($"Applied storage capacity bonus: {bonus.storageCapacityBonus}");
             anyBonusApplied = true;
         }

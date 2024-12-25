@@ -47,7 +47,7 @@ public class HUDController : MonoBehaviour
         {
             gameManager.GetBuildingManager().TryBuildWagon(wagonType, this.transform);
         }
-        gameManager.GetResourceManager().AddResource(ResourceType.WOOD, 100f);
+        gameManager.GetResourceManager().AddResourcePartial(ResourceType.WOOD, 100f);
     }
 
     private void OnWagonButtonClicked(Wagon wagon)

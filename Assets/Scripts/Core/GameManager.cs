@@ -4,6 +4,7 @@ using System.Collections.Generic;
 public class GameManager : MonoBehaviour
 {
     [Header("Data References")]
+    public GlobalStorageData globalStorageData;
     public GameBalanceData gameBalanceData;
     public TerrainData terrainData;
     public BiomeData biomeData;
@@ -32,6 +33,8 @@ public class GameManager : MonoBehaviour
     private EventManager eventManager;
     private TimeIntervalScheduler eventScheduler;
     private GameEndingsManager endingsManager;
+    private GlobalStorageSystem globalStorageSystem;
+
 
 
     public static GameManager Instance { get; private set; }
@@ -53,6 +56,7 @@ public class GameManager : MonoBehaviour
     {
         GetCentralHumanManager().GetAvailableHumans();
         GetCentralHumanManager().GetTotalHumans();
+        GetGlobalStorageSystem().GetTotalCapacity();
     }
 
     public void Initialize()
@@ -72,10 +76,20 @@ public class GameManager : MonoBehaviour
         // Map
         mapManager = new MapManager();
         mapManager.Initialize(this, mapSettings);
+        
+        // Storage
+        globalStorageSystem = new GlobalStorageSystem();
+        float baseCap = 100f;
+        if (globalStorageData != null)
+        {
+            baseCap = globalStorageData.baseCapacity; 
+        }
+        globalStorageSystem.Initialize(baseCap);
 
         // Resource
         resourceManager = new ResourceManager();
-        resourceManager.Initialize(resourceSettings);
+        resourceManager.Initialize(resourceSettings, globalStorageSystem);
+
 
         // Humans
         centralHumanManager = new CentralHumanManager();
@@ -90,8 +104,8 @@ public class GameManager : MonoBehaviour
         {
             prefabDict[wagonBuildDatas[i].wagonType] = wagonPrefabs[i];
         }
+        wagonManager.Initialize(this, wagonBuildDatas, prefabDict, globalStorageSystem);
 
-        wagonManager.Initialize(this, wagonBuildDatas, prefabDict);
         
         // Building
         buildingManager = new BuildingManager();
@@ -131,9 +145,12 @@ public class GameManager : MonoBehaviour
         // Events from DisasterManager and TrainBase
         GetDisasterManager().OnLoseCondition += () => endingsManager.HandleGameOver(false);
         GetTrainBase().OnWinCondition += () => endingsManager.HandleGameOver(true);
+        
 
 
-        resourceManager.AddResource(ResourceType.WOOD, 20f);
+
+        resourceManager.AddResourcePartial(ResourceType.WOOD, 20f);
+        
 
 
         /*
@@ -193,4 +210,5 @@ public class GameManager : MonoBehaviour
     public TrainBase GetTrainBase() { return trainBase; }
     public TrainPhysics GetTrainPhysics() { return trainPhysics; }
     public DisasterManager GetDisasterManager() { return disasterManager; }
+    public GlobalStorageSystem GetGlobalStorageSystem() {return globalStorageSystem;}
 }

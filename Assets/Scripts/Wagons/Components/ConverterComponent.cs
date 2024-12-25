@@ -25,27 +25,30 @@ public class ConverterComponent : MonoBehaviour
     public void ConvertResources(float deltaTime)
     {
         if (gameManager == null || workerComponent == null) return;
-
-        // Check if there are any workers assigned
+    
+        // No workers => no conversion
         if (workerComponent.GetCurrentWorkers() <= 0)
         {
-            // No workers means no conversion
             return;
         }
-
+    
         float efficiency = workerComponent.GetEfficiency();
         float effectiveRate = baseConversionRate * efficiency * deltaTime;
-
+    
         var rm = gameManager.GetResourceManager();
-
+    
         // Check input availability
         float inputAvailable = rm.GetResourceAmount(inputResource);
         float amountToConvert = Mathf.Min(effectiveRate, inputAvailable);
-
+    
         if (amountToConvert > 0)
         {
+            // Remove input resource
             rm.RemoveResource(inputResource, amountToConvert);
-            rm.AddResource(currentOutputResource, amountToConvert);
+            // Attempt partial add of output
+            rm.AddResourcePartial(currentOutputResource, amountToConvert);
+            // No leftover penalty needed here, 
+            // ResourceManager handles over-capacity events automatically.
         }
     }
 }

@@ -1,4 +1,5 @@
 using System;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class TrainBase : MonoBehaviour
@@ -14,12 +15,14 @@ public class TrainBase : MonoBehaviour
     public float maxSpeed = 20f; // just a cap for safety
     public float acceleration = 0f; // computed
     public float currentSpeed = 0f; // it was private
+    private bool isSlowedDown = false;
+    private float slowdownFactor = 0.7f;
     
     private bool winTriggered = false;
 
     private GameManager gameManager;
     private TrainPhysics trainPhysics;
-
+    
     private ResourceType[] coalPriorityOrder = 
     { 
         ResourceType.COAL_HIGH, 
@@ -32,6 +35,10 @@ public class TrainBase : MonoBehaviour
         gameManager = gm;
         trainPhysics = physics;
         Debug.Log("TrainBase initialized.");
+        
+        var resourceManager = gm.GetResourceManager();
+        resourceManager.OnCapacityBecameOver += HandleOverCapacity;
+        resourceManager.OnCapacityBecameFree += HandleCapacityFreed;
     }
 
     void Update()
@@ -52,9 +59,11 @@ public class TrainBase : MonoBehaviour
         {
             motorForce = trainPhysics.CalculateMotorForce(baseMotorForce, coalQualityMultiplier, coalConsumptionRate);
         }
-        else
+
+        // If slowed
+        if (isSlowedDown)
         {
-            motorForce = 0f;
+            motorForce *= slowdownFactor;
         }
 
         // 2. Calculate total weight
@@ -159,5 +168,19 @@ public class TrainBase : MonoBehaviour
     public float GetCurrentSpeed()
     {
         return currentSpeed;
+    }
+    
+    private void HandleOverCapacity()
+    {
+        // Start slowdown
+        isSlowedDown = true;
+        Debug.Log("Train slowed down due to over capacity.");
+    }
+
+    private void HandleCapacityFreed()
+    {
+        // End slowdown
+        isSlowedDown = false;
+        Debug.Log("Train no longer slowed, capacity freed.");
     }
 }

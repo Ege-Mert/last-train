@@ -407,6 +407,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7969f93c477090949bc4149f0a7f2a6f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  globalStorageData: {fileID: 11400000, guid: 9a2479d2db5ac704b8b234c135f29b89, type: 2}
   gameBalanceData: {fileID: 11400000, guid: 9b8b66a2c0c243e42829c6fc10297275, type: 2}
   terrainData: {fileID: 11400000, guid: 870483eb2d712ce40b18451ceeb150b9, type: 2}
   biomeData: {fileID: 11400000, guid: cfce7f884bdde024cbd9b170910744f0, type: 2}
@@ -585,6 +586,7 @@ MonoBehaviour:
   coalQualityMultiplier: 1
   maxSpeed: 20
   acceleration: 0
+  currentSpeed: 0
 --- !u!1 &594864426
 GameObject:
   m_ObjectHideFlags: 0

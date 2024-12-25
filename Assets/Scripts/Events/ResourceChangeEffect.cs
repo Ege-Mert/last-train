@@ -10,7 +10,7 @@ public class ResourceChangeEffect : EventEffect
     {
         var rm = gameManager.GetResourceManager();
         if (amountChange > 0)
-            rm.AddResource(resourceType, amountChange);
+            rm.AddResourcePartial(resourceType, amountChange);
         else
             rm.RemoveResource(resourceType, Mathf.Abs(amountChange));
         
