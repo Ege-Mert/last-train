@@ -7,16 +7,23 @@ public class WagonManager
     private Dictionary<WagonType, WagonBuildData> availableWagons = new Dictionary<WagonType, WagonBuildData>();
     private List<Wagon> activeWagons = new List<Wagon>();
     private Dictionary<WagonType, GameObject> wagonPrefabs = new Dictionary<WagonType, GameObject>();
-    
     private GlobalStorageSystem globalStorageSystem;
 
+    // 1) Add this field to store the locomotive's rear connection
+    private Transform locomotiveRearConn;
 
-    public void Initialize(GameManager gm, WagonBuildData[] wagonBuildDatas, Dictionary<WagonType, GameObject> prefabs, GlobalStorageSystem storageSystem)
+    public delegate void WagonEvent(Wagon wagon);
+    public event WagonEvent OnWagonAdded;
+    public event WagonEvent OnWagonRemoved;
+
+    public void Initialize(GameManager gm, 
+                           WagonBuildData[] wagonBuildDatas, 
+                           Dictionary<WagonType, GameObject> prefabs, 
+                           GlobalStorageSystem storageSystem)
     {
         gameManager = gm;
         wagonPrefabs = prefabs;
         globalStorageSystem = storageSystem;
-        
 
         foreach (var data in wagonBuildDatas)
         {
@@ -26,13 +33,17 @@ public class WagonManager
         Debug.Log("WagonManager initialized with " + availableWagons.Count + " wagon types available.");
     }
 
+    // 2) Provide a public setter so GameManager can assign the locomotive’s rear connector
+    public void SetLocomotiveConnectionPoint(Transform locoRear)
+    {
+        locomotiveRearConn = locoRear;
+    }
+
     public bool CanBuildWagon(WagonType type)
     {
-        if (!availableWagons.ContainsKey(type))
-            return false;
+        if (!availableWagons.ContainsKey(type)) return false;
 
         var data = availableWagons[type];
-        // Check if resources are sufficient
         foreach (var cost in data.constructionCosts)
         {
             if (gameManager.GetResourceManager().GetResourceAmount(cost.type) < cost.amount)
@@ -43,42 +54,115 @@ public class WagonManager
 
     public bool TryBuildWagon(WagonType type, Transform parent)
     {
-        if (!CanBuildWagon(type))
-            return false;
+        if (!CanBuildWagon(type)) return false;
 
-        var data = availableWagons[type];
         // Deduct resources
+        var data = availableWagons[type];
         foreach (var cost in data.constructionCosts)
         {
             gameManager.GetResourceManager().RemoveResource(cost.type, cost.amount);
         }
 
-        // Instantiate wagon
-        GameObject prefab = wagonPrefabs[type];
-        GameObject wagonGO = GameObject.Instantiate(prefab, parent);
+        if (!wagonPrefabs.ContainsKey(type) || wagonPrefabs[type] == null)
+        {
+            Debug.LogError("No prefab for wagon type: " + type);
+            return false;
+        }
+
+        // Decide spawn position
+        Vector3 spawnPos = parent.position;
+
+        if (activeWagons.Count > 0)
+        {
+            // measure from last wagon’s back connector, etc.
+            var lastWagon = activeWagons[activeWagons.Count - 1];
+            var lastVis = lastWagon.GetComponentInChildren<WagonVisuals>();
+            if (lastVis != null)
+            {
+                var backPos = lastVis.GetBackConnectorPosition();
+                // Off-screen dummy approach or similar ...
+                GameObject temp = wagonPrefabs[type];
+                GameObject dummy = GameObject.Instantiate(temp);
+                var dummyVis = dummy.GetComponentInChildren<WagonVisuals>();
+                if (dummyVis != null)
+                {
+                    Vector3 frontOffset = dummyVis.GetFrontConnectorPosition() - dummyVis.transform.position;
+                    spawnPos = backPos - frontOffset;
+                }
+                GameObject.Destroy(dummy);
+            }
+        }
+
+        GameObject wagonGO = GameObject.Instantiate(wagonPrefabs[type], spawnPos, Quaternion.identity, parent);
         Wagon w = wagonGO.GetComponent<Wagon>();
         w.Initialize(gameManager);
         activeWagons.Add(w);
 
-        // If it has a StorageComponent, add it to the global storage system
         var storageComp = wagonGO.GetComponent<StorageComponent>();
         if (storageComp != null)
         {
             globalStorageSystem.AddStorageComponent(storageComp);
         }
 
+        OnWagonAdded?.Invoke(w);
+
         return true;
+    }
+
+    public Wagon GetLastWagon()
+    {
+        if (activeWagons.Count == 0) return null;
+        return activeWagons[activeWagons.Count - 1];
     }
 
     public void DestroyWagon(Wagon wagon)
     {
         if (wagon == null) return;
-
-        Debug.Log($"Destroying wagon: {wagon.name}");
-        
-        // The WorkerComponent's OnDestroy will handle worker reassignment
+        OnWagonRemoved?.Invoke(wagon);
         activeWagons.Remove(wagon);
         Object.Destroy(wagon.gameObject);
+
+        // Re-align after removal, if desired
+        ReAlignAllWagons();
+    }
+
+    public void ReAlignAllWagons()
+    {
+        var wagons = activeWagons;
+        if (wagons.Count == 0) return;
+
+        // snap first wagon to locomotive
+        SnapWagonToLocomotive(wagons[0]);
+
+        // snap subsequent wagons
+        for (int i = 1; i < wagons.Count; i++)
+        {
+            SnapWagonToPrevious(wagons[i], wagons[i - 1]);
+        }
+    }
+
+    private void SnapWagonToLocomotive(Wagon w)
+    {
+        if (locomotiveRearConn == null) return;
+
+        var wagonVis = w.GetComponentInChildren<WagonVisuals>();
+        if (wagonVis == null) return;
+
+        Vector3 locoPos = locomotiveRearConn.position;
+        Vector3 wagonFrontPos = wagonVis.GetFrontConnectorPosition();
+        Vector3 offset = locoPos - wagonFrontPos;
+
+        w.transform.position += offset;
+    }
+
+    private void SnapWagonToPrevious(Wagon thisWagon, Wagon prevWagon)
+    {
+        var prevVis = prevWagon.GetComponentInChildren<WagonVisuals>();
+        var thisVis = thisWagon.GetComponentInChildren<WagonVisuals>();
+        if (prevVis == null || thisVis == null) return;
+
+        Vector3 offset = prevVis.GetBackConnectorPosition() - thisVis.GetFrontConnectorPosition();
+        thisWagon.transform.position += offset;
     }
 
     public List<Wagon> GetActiveWagons()

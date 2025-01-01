@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using System.Collections;
 
 public class GameManager : MonoBehaviour
 {
@@ -12,9 +13,14 @@ public class GameManager : MonoBehaviour
     public ResourceSettings resourceSettings;
     public DisasterData disasterData;
     public WagonBuildData[] wagonBuildDatas;
+    
+    
     public List<GameObject> wagonPrefabs; // Each prefab corresponds to a type in wagonBuildDatas order
     public List<EventData> eventPool; // Assign in inspector
     [SerializeField] private TimeIntervalScheduler eventSchedulerPrefab; // a prefab or assign a scene object
+    
+
+
 
 
 
@@ -34,6 +40,11 @@ public class GameManager : MonoBehaviour
     private TimeIntervalScheduler eventScheduler;
     private GameEndingsManager endingsManager;
     private GlobalStorageSystem globalStorageSystem;
+    
+    [Header("Viusal Manager Reference")]
+    [SerializeField] private TrainVisualManager trainVisualManager;
+    [SerializeField] private Transform wagonParent; // Assign WagonAttachPoint in inspector
+
 
 
 
@@ -41,6 +52,7 @@ public class GameManager : MonoBehaviour
 
     void Awake()
     {
+
         if (Instance == null)
         {
             Instance = this;
@@ -58,6 +70,7 @@ public class GameManager : MonoBehaviour
         GetCentralHumanManager().GetTotalHumans();
         GetGlobalStorageSystem().GetTotalCapacity();
     }
+    
 
     public void Initialize()
     {
@@ -121,6 +134,14 @@ public class GameManager : MonoBehaviour
         {
             trainBase.Initialize(this, trainPhysics);
         }
+        if (trainVisualManager != null){ 
+        trainVisualManager.Initialize(this);
+        }
+        else{
+            Debug.Log("Not working");
+        }
+        wagonManager.SetLocomotiveConnectionPoint(wagonParent);
+        
         
         // Disaster
         disasterManager = new DisasterManager();
@@ -149,8 +170,16 @@ public class GameManager : MonoBehaviour
 
 
 
-        resourceManager.AddResourcePartial(ResourceType.WOOD, 20f);
-        
+        resourceManager.AddResourcePartial(ResourceType.WOOD, 200f);
+        // if (wagonParent != null)
+        // {
+        //     wagonManager.TryBuildWagon(WagonType.STORAGE, wagonParent);
+        // }
+        // else
+        // {
+        //     Debug.LogError("Wagon parent transform not assigned!");
+        // }
+        StartCoroutine(BuildInitialWagons());
 
 
         /*
@@ -197,6 +226,39 @@ public class GameManager : MonoBehaviour
 
 
     }
+    private IEnumerator BuildInitialWagons()
+    {
+        yield return new WaitForSeconds(0.1f); // Initial delay
+        
+        wagonManager.TryBuildWagon(WagonType.STORAGE, wagonParent);
+        yield return new WaitForSeconds(5f); // Initial delay
+        wagonManager.TryBuildWagon(WagonType.WOOD_COLLECTOR, wagonParent);
+        yield return new WaitForSeconds(1f); // Initial delay
+        wagonManager.TryBuildWagon(WagonType.SCRAP_COLLECTOR, wagonParent);
+        yield return new WaitForSeconds(1f); // Initial delay
+        wagonManager.TryBuildWagon(WagonType.CONVERTER, wagonParent);
+        yield return new WaitForSeconds(1f); // Initial delay
+        wagonManager.TryBuildWagon(WagonType.SLEEPING, wagonParent);
+        yield return new WaitForSeconds(1f); // Initial delay
+        wagonManager.TryBuildWagon(WagonType.WOOD_COLLECTOR, wagonParent);
+        yield return new WaitForSeconds(1f); // Initial delay
+        wagonManager.TryBuildWagon(WagonType.CONVERTER, wagonParent);
+        yield return new WaitForSeconds(2f); // Initial delay
+        TestWagonRemoval();
+        yield return new WaitForSeconds(2f); // Initial delay
+        TestWagonRemoval();
+        
+        yield return new WaitForSeconds(4f); // Initial delay
+        GetTrainBase().currentSpeed = 12;
+    }
+    public void TestWagonRemoval()
+{
+    var wagons = wagonManager.GetActiveWagons();
+    if (wagons.Count > 0)
+    {
+        wagonManager.DestroyWagon(wagons[2]);
+    }
+}
 
     public GameProgressManager GetGameProgressManager() { return gameProgressManager; }
     public TerrainManager GetTerrainManager() { return terrainManager; }
@@ -211,4 +273,5 @@ public class GameManager : MonoBehaviour
     public TrainPhysics GetTrainPhysics() { return trainPhysics; }
     public DisasterManager GetDisasterManager() { return disasterManager; }
     public GlobalStorageSystem GetGlobalStorageSystem() {return globalStorageSystem;}
+    public TrainVisualManager GetTrainVisualManager() {return trainVisualManager;}
 }
