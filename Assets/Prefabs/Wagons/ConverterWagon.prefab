@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2481436391655521643}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: BackConnectionPoint
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -40,7 +40,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 141793251812344966}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: FrontConnectionPoint
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -76,7 +76,7 @@ GameObject:
   - component: {fileID: 8186501977538756523}
   - component: {fileID: 3783987217121610447}
   - component: {fileID: -5574087528332499465}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: ConverterWagon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -182,7 +182,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4779367396830143275}
   - component: {fileID: 3203863854845391627}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: SpriteRenderer
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -266,7 +266,8 @@ GameObject:
   m_Component:
   - component: {fileID: 2120790108935083801}
   - component: {fileID: 2350549980483209932}
-  m_Layer: 0
+  - component: {fileID: 42739580186234048}
+  m_Layer: 6
   m_Name: WagonVisuals
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -306,7 +307,52 @@ MonoBehaviour:
   mainSprite: {fileID: 3203863854845391627}
   frontConnector: {fileID: 141793251812344966}
   backConnector: {fileID: 2481436391655521643}
-  normalSprite: {fileID: 21300000, guid: 09c721582a0f4ff4ba2ef19ffe387205, type: 3}
-  damagedSprite: {fileID: 21300000, guid: d833a5c1adf61b645bb225b1430ece9c, type: 3}
+  normalSprite: {fileID: 21300000, guid: d833a5c1adf61b645bb225b1430ece9c, type: 3}
+  damagedSprite: {fileID: 21300000, guid: 09c721582a0f4ff4ba2ef19ffe387205, type: 3}
   moveSpeed: 1
   snapDistance: 0.1
+--- !u!61 &42739580186234048
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6808329942834684238}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0.010675669, y: -0.43770775}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0, y: 0}
+    oldSize: {x: 0, y: 0}
+    newSize: {x: 0, y: 0}
+    adaptiveTilingThreshold: 0
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  serializedVersion: 2
+  m_Size: {x: 4.1600356, y: 2.131634}
+  m_EdgeRadius: 0

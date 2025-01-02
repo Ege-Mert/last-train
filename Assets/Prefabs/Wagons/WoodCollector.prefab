@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3033766988378007060}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: FrontConnectionPoint
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -41,7 +41,8 @@ GameObject:
   m_Component:
   - component: {fileID: 6711206126236436487}
   - component: {fileID: 5677997376060344034}
-  m_Layer: 0
+  - component: {fileID: 2058811599320385024}
+  m_Layer: 6
   m_Name: WagonVisuals
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -85,6 +86,51 @@ MonoBehaviour:
   damagedSprite: {fileID: 21300000, guid: 0433046f96a99064993b5e71552ae82a, type: 3}
   moveSpeed: 1
   snapDistance: 0.1
+--- !u!61 &2058811599320385024
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5400532818623848379}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0.022339344, y: -0.36859453}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0, y: 0}
+    oldSize: {x: 0, y: 0}
+    newSize: {x: 0, y: 0}
+    adaptiveTilingThreshold: 0
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  serializedVersion: 2
+  m_Size: {x: 5.1327267, y: 2.2733266}
+  m_EdgeRadius: 0
 --- !u!1 &5588492319312589959
 GameObject:
   m_ObjectHideFlags: 0
@@ -95,7 +141,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4042250908107343769}
   - component: {fileID: 75847618181889963}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: SpriteRenderer
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -183,7 +229,7 @@ GameObject:
   - component: {fileID: 210562199508600049}
   - component: {fileID: -2558916781738139737}
   - component: {fileID: 3397964244134025021}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: WoodCollector
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -289,7 +335,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3540287345518082565}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: BackConnectionPoint
   m_TagString: Untagged
   m_Icon: {fileID: 0}

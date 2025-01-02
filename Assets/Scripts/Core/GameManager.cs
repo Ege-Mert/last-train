@@ -18,7 +18,7 @@ public class GameManager : MonoBehaviour
     public List<GameObject> wagonPrefabs; // Each prefab corresponds to a type in wagonBuildDatas order
     public List<EventData> eventPool; // Assign in inspector
     [SerializeField] private TimeIntervalScheduler eventSchedulerPrefab; // a prefab or assign a scene object
-    
+    [SerializeField]private WagonPanelController wagonPanelController;
 
 
 
@@ -40,6 +40,7 @@ public class GameManager : MonoBehaviour
     private TimeIntervalScheduler eventScheduler;
     private GameEndingsManager endingsManager;
     private GlobalStorageSystem globalStorageSystem;
+
     
     [Header("Viusal Manager Reference")]
     [SerializeField] private TrainVisualManager trainVisualManager;
@@ -167,6 +168,9 @@ public class GameManager : MonoBehaviour
         GetDisasterManager().OnLoseCondition += () => endingsManager.HandleGameOver(false);
         GetTrainBase().OnWinCondition += () => endingsManager.HandleGameOver(true);
         
+        wagonPanelController.Initialize(this);
+
+        
 
 
 
@@ -231,33 +235,29 @@ public class GameManager : MonoBehaviour
         yield return new WaitForSeconds(0.1f); // Initial delay
         
         wagonManager.TryBuildWagon(WagonType.STORAGE, wagonParent);
-        yield return new WaitForSeconds(5f); // Initial delay
-        wagonManager.TryBuildWagon(WagonType.WOOD_COLLECTOR, wagonParent);
         yield return new WaitForSeconds(1f); // Initial delay
+        wagonManager.TryBuildWagon(WagonType.WOOD_COLLECTOR, wagonParent);
+        yield return new WaitForSeconds(0.1f); // Initial delay
         wagonManager.TryBuildWagon(WagonType.SCRAP_COLLECTOR, wagonParent);
-        yield return new WaitForSeconds(1f); // Initial delay
+        yield return new WaitForSeconds(0.1f); // Initial delay
         wagonManager.TryBuildWagon(WagonType.CONVERTER, wagonParent);
-        yield return new WaitForSeconds(1f); // Initial delay
+        yield return new WaitForSeconds(0.1f); // Initial delay
         wagonManager.TryBuildWagon(WagonType.SLEEPING, wagonParent);
-        yield return new WaitForSeconds(1f); // Initial delay
+        yield return new WaitForSeconds(0.1f); // Initial delay
         wagonManager.TryBuildWagon(WagonType.WOOD_COLLECTOR, wagonParent);
-        yield return new WaitForSeconds(1f); // Initial delay
+        yield return new WaitForSeconds(0.1f); // Initial delay
         wagonManager.TryBuildWagon(WagonType.CONVERTER, wagonParent);
-        yield return new WaitForSeconds(2f); // Initial delay
-        TestWagonRemoval();
-        yield return new WaitForSeconds(2f); // Initial delay
-        TestWagonRemoval();
+        // yield return new WaitForSeconds(2f); // Initial delay
+        // TestWagonRemoval();
+        // yield return new WaitForSeconds(2f); // Initial delay
+        // TestWagonRemoval();
         
         yield return new WaitForSeconds(4f); // Initial delay
         GetTrainBase().currentSpeed = 12;
     }
-    public void TestWagonRemoval()
+    public void TestWagonRemoval(Wagon wagon)
 {
-    var wagons = wagonManager.GetActiveWagons();
-    if (wagons.Count > 0)
-    {
-        wagonManager.DestroyWagon(wagons[2]);
-    }
+    wagonManager.DestroyWagon(wagon);
 }
 
     public GameProgressManager GetGameProgressManager() { return gameProgressManager; }

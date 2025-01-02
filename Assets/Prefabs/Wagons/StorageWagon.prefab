@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5042290284873694084}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: FrontConnectionPoint
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -41,7 +41,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5311342569993611449}
   - component: {fileID: 4579804032159811817}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: SpriteRenderer
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -125,7 +125,8 @@ GameObject:
   m_Component:
   - component: {fileID: 7879013744038791473}
   - component: {fileID: 1112137540199704604}
-  m_Layer: 0
+  - component: {fileID: 4791310069287249855}
+  m_Layer: 6
   m_Name: WagonVisuals
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -167,8 +168,53 @@ MonoBehaviour:
   backConnector: {fileID: 6191846434116087397}
   normalSprite: {fileID: 21300000, guid: 4185569533490ad438390cc140834482, type: 3}
   damagedSprite: {fileID: 21300000, guid: 276df1ed21ceee64cb2a78a5e5f4126c, type: 3}
-  moveSpeed: 1
+  moveSpeed: 5
   snapDistance: 0.1
+--- !u!61 &4791310069287249855
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6226091019802130126}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0, y: 0}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0, y: 0}
+    oldSize: {x: 0, y: 0}
+    newSize: {x: 0, y: 0}
+    adaptiveTilingThreshold: 0
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  serializedVersion: 2
+  m_Size: {x: 5.46, y: 1.52}
+  m_EdgeRadius: 0
 --- !u!1 &7470830446699587581
 GameObject:
   m_ObjectHideFlags: 0
@@ -181,7 +227,8 @@ GameObject:
   - component: {fileID: -8193378567300730355}
   - component: {fileID: 3759860771261990537}
   - component: {fileID: 3244516253682887985}
-  m_Layer: 0
+  - component: {fileID: 8002698331796887286}
+  m_Layer: 6
   m_Name: StorageWagon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -248,6 +295,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   upgradeData: {fileID: 11400000, guid: 08d5a9e37ce17564aa72e84a335f6a8e, type: 2}
   currentLevel: 1
+--- !u!114 &8002698331796887286
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7470830446699587581}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f292ac369d0adfc40873e0e2d86045d7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxDurability: 100
+  currentDurability: 100
+  degradeRate: 0.1
 --- !u!1 &8686113410293863084
 GameObject:
   m_ObjectHideFlags: 0
@@ -257,7 +319,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6191846434116087397}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: BackConnectionPoint
   m_TagString: Untagged
   m_Icon: {fileID: 0}

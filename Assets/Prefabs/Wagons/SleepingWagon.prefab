@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1706968728461519401}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: FrontConnectionPoint
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -40,7 +40,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2749085343339477124}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: BackConnectionPoint
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -72,7 +72,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5850467114171340730}
   - component: {fileID: 7989841603744331942}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: SpriteRenderer
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -158,7 +158,7 @@ GameObject:
   - component: {fileID: 3336870268246630358}
   - component: {fileID: 1040382773323895609}
   - component: {fileID: 6449651085171636277}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: SleepingWagon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -235,7 +235,8 @@ GameObject:
   m_Component:
   - component: {fileID: 7477364102063246137}
   - component: {fileID: 6211326775030817694}
-  m_Layer: 0
+  - component: {fileID: 7766396995737337472}
+  m_Layer: 6
   m_Name: WagonVisuals
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -279,3 +280,48 @@ MonoBehaviour:
   damagedSprite: {fileID: 21300000, guid: 7d63ecbf17d98dd4a838c81c2338bd9a, type: 3}
   moveSpeed: 1
   snapDistance: 0.1
+--- !u!61 &7766396995737337472
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9057754421060476962}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_ForceSendLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ForceReceiveLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_ContactCaptureLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_CallbackLayers:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: -0.003983021, y: -0.2668646}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0, y: 0}
+    oldSize: {x: 0, y: 0}
+    newSize: {x: 0, y: 0}
+    adaptiveTilingThreshold: 0
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  serializedVersion: 2
+  m_Size: {x: 4.3855963, y: 1.5337292}
+  m_EdgeRadius: 0
