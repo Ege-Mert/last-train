@@ -13,4 +13,8 @@ MonoBehaviour:
   m_Name: WagonUIStyle
   m_EditorClassIdentifier: 
   wagonType: 0
+<<<<<<< HEAD
   panelBackground: {fileID: 21300000, guid: bc01803570d890845bdd3bb5800a77ae, type: 3}
+=======
+  panelBackground: {fileID: 21300000, guid: 083ca56e7739ff14d955486004d94b1b, type: 3}
+>>>>>>> 9a281b9 (Train Visuals & UI completed with very messy file order and placeholder texts and sprites.)
