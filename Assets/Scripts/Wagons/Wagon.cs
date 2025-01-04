@@ -23,4 +23,8 @@ public abstract class Wagon : MonoBehaviour
         // Just returns base weight for now. Later, we might add resource contents or upgrades.
         return baseWeight;
     }
+    
+    public string GetWagonName(){
+        return wagonName;
+    }
 }

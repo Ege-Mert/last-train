@@ -9,17 +9,21 @@ public class CentralHumanManager
     // Humans available for work (not assigned anywhere)
     private int availableHumans = 0;
 
-    // For tracking which wagons have how many workers assigned in the future
-    // In a more detailed implementation, we might store Wagon references and counts.
+    // Worker assignment dictionary
     private Dictionary<object, int> assignedWorkers = new Dictionary<object, int>();
+
+    // NEW: total sleeping capacity across all wagons
+    private int totalSleepingCapacity = 0;
 
     public void Initialize()
     {
         totalHumans = 0;
         availableHumans = 0;
         assignedWorkers.Clear();
+        totalSleepingCapacity = 0;
     }
 
+    #region Add/Remove Humans
     public void AddHumans(int count)
     {
         if (count > 0)
@@ -61,6 +65,7 @@ public class CentralHumanManager
         }
         return false;
     }
+
     public void HandleWagonDestruction(object target)
     {
         if (assignedWorkers.ContainsKey(target))
@@ -71,7 +76,35 @@ public class CentralHumanManager
             Debug.Log($"Wagon destroyed: Reassigned {workersToReassign} workers back to available pool. Now available: {availableHumans}");
         }
     }
+    #endregion
 
+    #region Sleeping Capacity Tracking
+    public void AddSleepingCapacity(int capacity)
+    {
+        totalSleepingCapacity += capacity;
+        Debug.Log($"Added {capacity} sleeping capacity. Total capacity: {totalSleepingCapacity}");
+    }
+
+    public void RemoveSleepingCapacity(int capacity)
+    {
+        totalSleepingCapacity -= capacity;
+        if (totalSleepingCapacity < 0) totalSleepingCapacity = 0; 
+        Debug.Log($"Removed {capacity} sleeping capacity. Total capacity: {totalSleepingCapacity}");
+    }
+
+    public bool IsOverCapacity()
+    {
+        // true if totalHumans > totalSleepingCapacity
+        return totalHumans > totalSleepingCapacity;
+    }
+
+    public int GetSleepingCapacity()
+    {
+        return totalSleepingCapacity;
+    }
+    #endregion
+
+    #region Getters
     public int GetAvailableHumans()
     {
         return availableHumans;
@@ -81,4 +114,5 @@ public class CentralHumanManager
     {
         return totalHumans;
     }
+    #endregion
 }

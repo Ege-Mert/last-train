@@ -19,6 +19,9 @@ public class TrainBase : MonoBehaviour
     private float slowdownFactor = 0.7f;
     
     private bool winTriggered = false;
+    
+    [SerializeField] private Transform wagonParent;  // Add this field
+
 
     private GameManager gameManager;
     private TrainPhysics trainPhysics;
@@ -168,6 +171,14 @@ public class TrainBase : MonoBehaviour
     public float GetCurrentSpeed()
     {
         return currentSpeed;
+    }
+    public int GetMaxSpeed()
+    {
+        return (int)maxSpeed;
+    }
+    public Transform GetWagonParent()
+    {
+        return wagonParent;
     }
     
     private void HandleOverCapacity()

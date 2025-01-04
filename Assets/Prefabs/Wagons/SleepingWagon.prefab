@@ -194,7 +194,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   wagonType: 4
-  wagonName: 
+  wagonName: eepy
   baseWeight: 10
   upgradeData: {fileID: 11400000, guid: 08d5a9e37ce17564aa72e84a335f6a8e, type: 2}
 --- !u!114 &1040382773323895609

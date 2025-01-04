@@ -5,6 +5,7 @@ public class ConverterComponent : MonoBehaviour
     [SerializeField] private ResourceType inputResource = ResourceType.WOOD;
     [SerializeField] private float baseConversionRate = 0.5f;
 
+    private float amountToConvert;
     private WorkerComponent workerComponent;
     private GameManager gameManager;
 
@@ -39,7 +40,7 @@ public class ConverterComponent : MonoBehaviour
     
         // Check input availability
         float inputAvailable = rm.GetResourceAmount(inputResource);
-        float amountToConvert = Mathf.Min(effectiveRate, inputAvailable);
+        amountToConvert = Mathf.Min(effectiveRate, inputAvailable);
     
         if (amountToConvert > 0)
         {
@@ -50,5 +51,9 @@ public class ConverterComponent : MonoBehaviour
             // No leftover penalty needed here, 
             // ResourceManager handles over-capacity events automatically.
         }
+    }
+    
+    public float GetConvertingRate(){
+        return amountToConvert;
     }
 }

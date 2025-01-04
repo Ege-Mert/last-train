@@ -11,26 +11,23 @@ public class WagonInputSystem : MonoBehaviour
 
     // Reference the main UI's GraphicRaycaster
     [SerializeField] private GraphicRaycaster uiRaycaster;
+    [SerializeField] private ShopPanelController shopPanel;
+
 
     private void Awake()
     {
         // you could also find the raycaster at runtime if you prefer:
         // uiRaycaster = FindObjectOfType<GraphicRaycaster>();
     }
-
     public void OnLeftClick(InputValue value)
     {
         if (!value.isPressed) return;
 
-        // Step 1) Check if the click hits any UI
         if (ClickedOnUI())
         {
-            // We clicked on the UI, so do nothing special for wagons
-            // (Don't hide the panel, don't open a new one)
             return;
         }
 
-        // Step 2) If no UI was hit, do wagon detection
         Vector2 screenPos = Mouse.current.position.ReadValue();
         Vector2 worldPos = Camera.main.ScreenToWorldPoint(screenPos);
 
@@ -40,14 +37,30 @@ public class WagonInputSystem : MonoBehaviour
             var wagon = hit.collider.GetComponentInParent<Wagon>();
             if (wagon != null)
             {
-                // Show single UI panel for this wagon
-                wagonPanel.ShowPanel(wagon);
+                // Close shop if open
+                if (shopPanel != null && shopPanel.IsShopOpen())
+                {
+                    shopPanel.HideShop();
+                }
+
+                if (wagonPanel.IsOpenForThisWagon(wagon))
+                {
+                    wagonPanel.HidePanel();
+                }
+                else
+                {
+                    wagonPanel.ShowPanel(wagon);
+                }
                 return;
             }
         }
 
-        // Step 3) If no wagon was hit, hide the panel
+        // If we clicked empty space and no UI was hit, hide both panels
         wagonPanel.HidePanel();
+        if (shopPanel != null)
+        {
+            shopPanel.HideShop();
+        }
     }
 
     private bool ClickedOnUI()

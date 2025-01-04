@@ -4,6 +4,8 @@ using UnityEngine;
 public class WagonManager
 {
     private GameManager gameManager;
+    private Transform wagonParent; // New field
+
     private Dictionary<WagonType, WagonBuildData> availableWagons = new Dictionary<WagonType, WagonBuildData>();
     private List<Wagon> activeWagons = new List<Wagon>();
     private Dictionary<WagonType, GameObject> wagonPrefabs = new Dictionary<WagonType, GameObject>();
@@ -19,11 +21,13 @@ public class WagonManager
     public void Initialize(GameManager gm, 
                            WagonBuildData[] wagonBuildDatas, 
                            Dictionary<WagonType, GameObject> prefabs, 
-                           GlobalStorageSystem storageSystem)
+                           GlobalStorageSystem storageSystem,
+                           Transform parent)
     {
         gameManager = gm;
         wagonPrefabs = prefabs;
         globalStorageSystem = storageSystem;
+        wagonParent = parent; // Store the wagon parent
 
         foreach (var data in wagonBuildDatas)
         {
@@ -52,7 +56,7 @@ public class WagonManager
         return true;
     }
 
-    public bool TryBuildWagon(WagonType type, Transform parent)
+    public bool TryBuildWagon(WagonType type)  // Removed Transform parent parameter
     {
         if (!CanBuildWagon(type)) return false;
 
@@ -70,17 +74,15 @@ public class WagonManager
         }
 
         // Decide spawn position
-        Vector3 spawnPos = parent.position;
+        Vector3 spawnPos = wagonParent.position;  // Using internal wagonParent
 
         if (activeWagons.Count > 0)
         {
-            // measure from last wagon’s back connector, etc.
             var lastWagon = activeWagons[activeWagons.Count - 1];
             var lastVis = lastWagon.GetComponentInChildren<WagonVisuals>();
             if (lastVis != null)
             {
                 var backPos = lastVis.GetBackConnectorPosition();
-                // Off-screen dummy approach or similar ...
                 GameObject temp = wagonPrefabs[type];
                 GameObject dummy = GameObject.Instantiate(temp);
                 var dummyVis = dummy.GetComponentInChildren<WagonVisuals>();
@@ -93,7 +95,7 @@ public class WagonManager
             }
         }
 
-        GameObject wagonGO = GameObject.Instantiate(wagonPrefabs[type], spawnPos, Quaternion.identity, parent);
+        GameObject wagonGO = GameObject.Instantiate(wagonPrefabs[type], spawnPos, Quaternion.identity, wagonParent);
         Wagon w = wagonGO.GetComponent<Wagon>();
         w.Initialize(gameManager);
         activeWagons.Add(w);
@@ -102,6 +104,13 @@ public class WagonManager
         if (storageComp != null)
         {
             globalStorageSystem.AddStorageComponent(storageComp);
+        }
+            
+        var humanCap = wagonGO.GetComponent<HumanCapacityComponent>();
+        if (humanCap != null)
+        {
+            int cap = humanCap.GetMaxCapacity();
+            gameManager.GetCentralHumanManager().AddSleepingCapacity(cap);
         }
 
         OnWagonAdded?.Invoke(w);
@@ -120,6 +129,34 @@ public class WagonManager
         if (wagon == null) return;
         OnWagonRemoved?.Invoke(wagon);
         activeWagons.Remove(wagon);
+        Debug.Log($"Destroying wagon: {wagon.name}");
+
+        // If it has a HumanCapacityComponent => remove capacity
+        var humanCap = wagon.GetComponent<HumanCapacityComponent>();
+        if (humanCap != null)
+        {
+            int cap = humanCap.GetMaxCapacity();
+            gameManager.GetCentralHumanManager().RemoveSleepingCapacity(cap);
+            ReAlignAllWagons();
+        }
+
+        // If it has a storage comp => remove from global storage
+        var storageComp = wagon.GetComponent<StorageComponent>();
+        if (storageComp != null)
+        {
+            globalStorageSystem.RemoveStorageComponent(storageComp);
+            ReAlignAllWagons();
+        }
+
+        // Also reassign workers if it had WorkerComponent
+        // (CentralHumanManager.HandleWagonDestruction)
+        var workerComp = wagon.GetComponent<WorkerComponent>();
+        if (workerComp != null)
+        {
+            gameManager.GetCentralHumanManager().HandleWagonDestruction(workerComp);
+            ReAlignAllWagons();
+        }
+
         Object.Destroy(wagon.gameObject);
 
         // Re-align after removal, if desired

@@ -26,6 +26,11 @@ public class ResourceManager
             resourceAmounts[rt] = 0f;
         }
     }
+    
+    public bool GetIsOverCapacity()
+    {
+        return isOverCapacity;
+    }
 
     public bool CanAddResource(ResourceType type, float amount)
     {
@@ -138,5 +143,10 @@ public class ResourceManager
             total += kvp.Value * weightPerUnit;
         }
         return total;
+    }
+    
+    public float GetWeightCapacity()
+    {
+        return globalStorageSystem.GetTotalCapacity();
     }
 }

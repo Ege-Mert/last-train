@@ -18,7 +18,12 @@ public class GameManager : MonoBehaviour
     public List<GameObject> wagonPrefabs; // Each prefab corresponds to a type in wagonBuildDatas order
     public List<EventData> eventPool; // Assign in inspector
     [SerializeField] private TimeIntervalScheduler eventSchedulerPrefab; // a prefab or assign a scene object
+    [Header("UI Controllers")]
     [SerializeField]private WagonPanelController wagonPanelController;
+    [SerializeField] private ShopPanelController shopPanelController;
+    [SerializeField] private PopulationUIController populationUIController;
+    [SerializeField] private ResourceUIController resourceUIController;
+
 
 
 
@@ -44,7 +49,6 @@ public class GameManager : MonoBehaviour
     
     [Header("Viusal Manager Reference")]
     [SerializeField] private TrainVisualManager trainVisualManager;
-    [SerializeField] private Transform wagonParent; // Assign WagonAttachPoint in inspector
 
 
 
@@ -110,16 +114,13 @@ public class GameManager : MonoBehaviour
         centralHumanManager.Initialize();
         
         // Wagon
-        wagonManager = new WagonManager();
-
-        // Build a dictionary for prefabs:
+                wagonManager = new WagonManager();
         Dictionary<WagonType, GameObject> prefabDict = new Dictionary<WagonType, GameObject>();
         for (int i = 0; i < wagonBuildDatas.Length; i++)
         {
             prefabDict[wagonBuildDatas[i].wagonType] = wagonPrefabs[i];
         }
-        wagonManager.Initialize(this, wagonBuildDatas, prefabDict, globalStorageSystem);
-
+        
         
         // Building
         buildingManager = new BuildingManager();
@@ -141,6 +142,9 @@ public class GameManager : MonoBehaviour
         else{
             Debug.Log("Not working");
         }
+        // Get wagonParent from TrainBase
+        Transform wagonParent = trainBase.GetWagonParent();
+        wagonManager.Initialize(this, wagonBuildDatas, prefabDict, globalStorageSystem, wagonParent);
         wagonManager.SetLocomotiveConnectionPoint(wagonParent);
         
         
@@ -169,6 +173,33 @@ public class GameManager : MonoBehaviour
         GetTrainBase().OnWinCondition += () => endingsManager.HandleGameOver(true);
         
         wagonPanelController.Initialize(this);
+        
+        if (shopPanelController != null)
+        {
+            shopPanelController.Initialize(this);  // 'this' is the GameManager
+        }
+        else
+        {
+            Debug.LogError("ShopPanelController reference is missing!");
+        }
+        if (populationUIController != null)
+        {
+            populationUIController.Initialize(this);
+        }
+        else
+        {
+            Debug.LogError("PopulationUIController is not assigned in GameManager!");
+        }
+    
+        if (resourceUIController != null)
+        {
+            resourceUIController.Initialize(this);
+        }
+        else
+        {
+            Debug.LogError("ResourceUIController is not assigned in GameManager!");
+        }
+
 
         
 
@@ -234,19 +265,19 @@ public class GameManager : MonoBehaviour
     {
         yield return new WaitForSeconds(0.1f); // Initial delay
         
-        wagonManager.TryBuildWagon(WagonType.STORAGE, wagonParent);
+        wagonManager.TryBuildWagon(WagonType.STORAGE);
         yield return new WaitForSeconds(1f); // Initial delay
-        wagonManager.TryBuildWagon(WagonType.WOOD_COLLECTOR, wagonParent);
+        wagonManager.TryBuildWagon(WagonType.WOOD_COLLECTOR);
         yield return new WaitForSeconds(0.1f); // Initial delay
-        wagonManager.TryBuildWagon(WagonType.SCRAP_COLLECTOR, wagonParent);
+        wagonManager.TryBuildWagon(WagonType.SCRAP_COLLECTOR);
         yield return new WaitForSeconds(0.1f); // Initial delay
-        wagonManager.TryBuildWagon(WagonType.CONVERTER, wagonParent);
+        wagonManager.TryBuildWagon(WagonType.CONVERTER);
         yield return new WaitForSeconds(0.1f); // Initial delay
-        wagonManager.TryBuildWagon(WagonType.SLEEPING, wagonParent);
+        wagonManager.TryBuildWagon(WagonType.SLEEPING);
         yield return new WaitForSeconds(0.1f); // Initial delay
-        wagonManager.TryBuildWagon(WagonType.WOOD_COLLECTOR, wagonParent);
+        wagonManager.TryBuildWagon(WagonType.WOOD_COLLECTOR);
         yield return new WaitForSeconds(0.1f); // Initial delay
-        wagonManager.TryBuildWagon(WagonType.CONVERTER, wagonParent);
+        wagonManager.TryBuildWagon(WagonType.CONVERTER);
         // yield return new WaitForSeconds(2f); // Initial delay
         // TestWagonRemoval();
         // yield return new WaitForSeconds(2f); // Initial delay

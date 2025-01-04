@@ -42,7 +42,7 @@ public class BuildingManager
         }
 
         // If we can build it, just call WagonManager
-        bool result = gameManager.GetWagonManager().TryBuildWagon(type, parent);
+        bool result = gameManager.GetWagonManager().TryBuildWagon(type);
         return result;
     }
 

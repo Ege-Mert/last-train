@@ -14,4 +14,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   resources:
   - type: 0
-    weightPerUnit: 0
+    weightPerUnit: 0.5
+  - type: 1
+    weightPerUnit: 0.5
+  - type: 2
+    weightPerUnit: 0.5
+  - type: 3
+    weightPerUnit: 0.3
+  - type: 4
+    weightPerUnit: 0.2
+  - type: 5
+    weightPerUnit: 0.1

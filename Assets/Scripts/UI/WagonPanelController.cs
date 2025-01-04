@@ -1,10 +1,15 @@
 using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
+using System.Collections.Generic;
 
 public class WagonPanelController : MonoBehaviour
 {
     [Header("UI References")]
+    
+    [SerializeField] private TMP_Text wagonNameText;
+    [SerializeField] private TMP_Text productionRateText;
+    [SerializeField] private TMP_Text conversionRateText;
     [SerializeField] private TMP_Text durabilityText;
     [SerializeField] private TMP_Text workersText;
     [SerializeField] private Button fixButton;
@@ -13,8 +18,15 @@ public class WagonPanelController : MonoBehaviour
     [SerializeField] private Button destroyButton;
     [SerializeField] private Button upgradeButton;
     [SerializeField] private GameObject destroyConfirmPanel;
+    [SerializeField] private Image panelImage;
     [SerializeField] private Button destroyConfirmButton;
     [SerializeField] private Button destroyCancelButton;
+    
+    [SerializeField] private List<WagonUIStyle> wagonStyles;
+    
+    [Header("References")]
+    [SerializeField] private ShopPanelController shopPanel;
+
 
     private Wagon currentWagon;
     private GameManager gameManager;
@@ -32,15 +44,19 @@ public class WagonPanelController : MonoBehaviour
 
     public void ShowPanel(Wagon wagon)
     {
+        // Close shop if open
+        if (shopPanel != null && shopPanel.IsShopOpen())
+        {
+            shopPanel.HideShop();
+        }
+    
         currentWagon = wagon;
-        // Activate the panel
         gameObject.SetActive(true);
         panelVisible = true;
-
-        // Hide confirm subpanel by default
+    
         if (destroyConfirmPanel != null)
             destroyConfirmPanel.SetActive(false);
-
+    
         RefreshPanel();
     }
 
@@ -67,31 +83,105 @@ public class WagonPanelController : MonoBehaviour
         var durability = currentWagon.GetComponent<DurabilityComponent>();
         var worker = currentWagon.GetComponent<WorkerComponent>();
         var upgrade = currentWagon.GetComponent<UpgradeComponent>();
+        var collector = currentWagon.GetComponent<CollectorComponent>();
+        var converter = currentWagon.GetComponent<ConverterComponent>();
+        var style = GetStyleForType(currentWagon.GetWagonType());
+        
+        
+        bool hasWorker = (worker != null);
+        
+        plusButton.gameObject.SetActive(hasWorker);
+        minusButton.gameObject.SetActive(hasWorker);
+        
+        
+        bool hasDurability = (durability != null);
 
+        fixButton.gameObject.SetActive(hasDurability);
         // Update durability text
-        if (durability != null && durabilityText != null)
+        if (hasDurability)
         {
             float pct = durability.GetDurabilityPercent() * 100f;
             durabilityText.text = $"Durability: {pct:0.0}%";
-            // fixButton interactable if below threshold
-            if (fixButton != null)
-            {
-                fixButton.interactable = (durability.GetDurabilityPercent() < fixThreshold);
-            }
+            fixButton.interactable = (durability.GetDurabilityPercent() < fixThreshold);
         }
-
+        else
+        {
+            durabilityText.text = ""; // No need to enter a thing but also I am too lazy to disable the thing
+        }
+        
+        
         // Update worker text
-        if (worker != null && workersText != null)
+        if (hasWorker)
         {
             workersText.text = $"Workers: {worker.GetCurrentWorkers()}/{worker.GetMaxWorkers()}";
         }
+        else
+        {
+            workersText.text = ""; // No need to enter a thing but also I am too lazy to disable the thing
+        }
 
         // Update upgrade button
-        if (upgradeButton != null && upgrade != null)
+        bool hasUpgrade = (upgrade != null);
+        if (upgradeButton != null)
         {
-            bool canUpgrade = (upgrade.GetCurrentLevel() < upgrade.GetMaxLevel());
-            upgradeButton.gameObject.SetActive(canUpgrade);
+            upgradeButton.gameObject.SetActive(hasUpgrade);
+            if (hasUpgrade)
+            {
+                bool canUpgrade = (upgrade.GetCurrentLevel() < upgrade.GetMaxLevel());
+                upgradeButton.interactable = canUpgrade;
+            }
         }
+
+        // Update collector text
+        if (collector != null)
+        {
+            float baseRate = collector.GetCollectionRate(); 
+            // or if it has a formula
+            productionRateText.text = $"Collects: {baseRate} /sec";
+            productionRateText.gameObject.SetActive(true);
+        }
+        else
+        {
+            productionRateText.gameObject.SetActive(false);
+        }
+        
+        // Update converter text
+        if (converter != null)
+        {
+            float baseRate = converter.GetConvertingRate(); 
+            // or if it has a formula
+            conversionRateText.text = $"Converts: {baseRate} /sec";
+            conversionRateText.gameObject.SetActive(true);
+        }
+        else
+        {
+            conversionRateText.gameObject.SetActive(false);
+        }
+        
+        // Update wagon name
+        var baseWagon = currentWagon; // the root wagon script
+        if (wagonNameText != null)
+        {
+            wagonNameText.text = baseWagon ? baseWagon.GetWagonName() : "Unknown Wagon";
+        }
+        
+        // Update panel image
+        if (panelImage != null)
+        {
+            if (style != null)
+            {
+                panelImage.sprite = style.panelBackground;
+            }
+        }
+    }
+    
+    public WagonUIStyle GetStyleForType(WagonType type)
+    {
+        foreach (var style in wagonStyles)
+        {
+            if (style.wagonType == type) return style;
+        }
+        return null;
     }
 
     // Button Callbacks
@@ -181,5 +271,10 @@ public class WagonPanelController : MonoBehaviour
             Debug.Log("Upgrade failed!");
         }
         RefreshPanel();
+    }
+    
+    public bool IsOpenForThisWagon(Wagon checkWagon)
+    {
+        return panelVisible && currentWagon == checkWagon;
     }
 }

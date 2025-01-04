@@ -27,6 +27,11 @@ MonoBehaviour:
     - type: 0
       amount: 5
   upgradeBonuses:
+  - level: 1
+    collectionRateBonus: 0
+    maxWorkersBonus: 0
+    storageCapacityBonus: 0
+    coalOutputResource: 2
   - level: 2
     collectionRateBonus: 4
     maxWorkersBonus: 12
