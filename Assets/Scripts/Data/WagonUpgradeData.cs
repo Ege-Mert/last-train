@@ -15,6 +15,8 @@ public class UpgradeBonus
     public int maxWorkersBonus;       
     public float storageCapacityBonus; 
     public ResourceType coalOutputResource = ResourceType.COAL_LOW;
+    public int sleepingCapacityBonus;
+
 }
 
 [CreateAssetMenu(fileName = "WagonUpgradeData", menuName = "last-train/Wagon Upgrade Data")]

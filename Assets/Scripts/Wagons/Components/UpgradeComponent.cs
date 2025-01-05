@@ -62,6 +62,7 @@ public class UpgradeComponent : MonoBehaviour
         var storage = GetComponent<StorageComponent>();
         var humanCapacity = GetComponent<HumanCapacityComponent>();
         var converter = GetComponent<ConverterComponent>();
+        var sleepingCapacity = GetComponent<HumanCapacityComponent>();
 
         // Apply bonuses to whatever components exist
         if (collector != null)
@@ -93,12 +94,18 @@ public class UpgradeComponent : MonoBehaviour
             anyBonusApplied = true;
         }
         if (converter != null)
-    {
-        // Set the converter to produce the specified coal quality resource
-        converter.SetCoalQualityOutput(bonus.coalOutputResource);
-        Debug.Log($"Set converter to produce: {bonus.coalOutputResource}");
-        anyBonusApplied = true;
-    }
+        {
+            // Set the converter to produce the specified coal quality resource
+            converter.SetCoalQualityOutput(bonus.coalOutputResource);
+            Debug.Log($"Set converter to produce: {bonus.coalOutputResource}");
+            anyBonusApplied = true;
+        }
+        if (sleepingCapacity != null)
+        {
+            sleepingCapacity.SetBonusCapacity(bonus.sleepingCapacityBonus);
+            Debug.Log($"Applied sleeping capacity bonus: {bonus.sleepingCapacityBonus}");
+            anyBonusApplied = true;
+        }
 
         return anyBonusApplied;
     }
