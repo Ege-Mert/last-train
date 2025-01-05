@@ -4,57 +4,107 @@ using UnityEngine;
 public class DisasterManager
 {
     public event Action OnLoseCondition;
+    public event Action<float> OnDisasterDistanceChanged;
 
-    
     private GameManager gameManager;
-    private float disasterSpeed = 0f; // speed of the disaster in units/sec
-    private float accelerationRate = 0.01f; // how quickly disaster speeds up over time
-    private float disasterPosition = -50f; // start some distance behind the player’s start (e.g., -50)
-    private bool systemActive = true;
+    private DisasterData disasterData;
+    private GameBalanceData gameBalanceData;
+    
+    private float disasterSpeed;
+    private float disasterPosition;
+    private bool isActive = true;
+    private bool isGameOver = false;
 
-    public bool gameOverTriggered = false; // OH boy I hopes nothings bads evers happens to my unprotexteds publics bools. Then I mets Larry The Public Bool Fondler.
+    [Header("Game Phase Modifiers")]
+    private float earlyGameSpeedMultiplier = 1.0f;
+    private float midGameSpeedMultiplier = 1.2f;
+    private float lateGameSpeedMultiplier = 1.5f;
 
-    public void Initialize(GameManager gm, float initialSpeed, float acceleration)
+    public void Initialize(GameManager gm, DisasterData disasterConfig, GameBalanceData balanceData)
     {
         gameManager = gm;
-        disasterSpeed = initialSpeed;
-        accelerationRate = acceleration;
-        disasterPosition = -50f; // start behind the starting point
-        // You can start a coroutine or have another system call UpdateDisaster each frame
+        disasterData = disasterConfig;
+        gameBalanceData = balanceData;
 
+        // Initialize starting values
+        disasterSpeed = disasterData.initialSpeed;
+        disasterPosition = CalculateInitialPosition();
     }
 
-        public void UpdateDisaster(float deltaTime)
+    private float CalculateInitialPosition()
     {
-        if (!systemActive || gameOverTriggered) return;
+        // Start at a percentage of the early game threshold
+        return -gameBalanceData.earlyGameThreshold * 0.2f;
+    }
 
-        // Increase disaster speed over time
-        disasterSpeed += accelerationRate * deltaTime;
+    private float GetCurrentSpeedMultiplier(float playerDistance)
+    {
+        if (playerDistance <= gameBalanceData.earlyGameThreshold)
+            return earlyGameSpeedMultiplier;
+        else if (playerDistance <= gameBalanceData.midGameThreshold)
+            return midGameSpeedMultiplier;
+        else
+            return lateGameSpeedMultiplier;
+    }
 
-        // Move disaster forward
-        disasterPosition += disasterSpeed * deltaTime;
+    public void UpdateDisaster(float deltaTime)
+    {
+        if (!isActive || isGameOver) return;
 
         float playerDistance = gameManager.GetGameProgressManager().GetDistance();
-        if (disasterPosition >= playerDistance)
+        float speedMultiplier = GetCurrentSpeedMultiplier(playerDistance);
+
+        // Update disaster speed with phase-based multiplier
+        disasterSpeed += disasterData.accelerationRate * speedMultiplier * deltaTime;
+
+        // Store previous position for change detection
+        float previousPosition = disasterPosition;
+        
+        // Update position
+        disasterPosition += disasterSpeed * deltaTime;
+
+        // Notify listeners if position changed significantly
+        if (Mathf.Abs(disasterPosition - previousPosition) > 0.1f)
         {
-            // Disaster caught the player
-            gameOverTriggered = true;
+            OnDisasterDistanceChanged?.Invoke(disasterPosition);
+        }
+
+        // Check for game over
+        if (disasterPosition >= playerDistance && !isGameOver)
+        {
+            isGameOver = true;
             OnLoseCondition?.Invoke();
         }
     }
 
-    public float GetDisasterPosition()
+    public float GetDisasterPosition() => disasterPosition;
+    public float GetDisasterSpeed() => disasterSpeed;
+    public float GetMaxDistance() => gameBalanceData.finalDestinationDistance;
+    
+    public float GetDistanceToTrain()
     {
-        return disasterPosition;
+        if (gameManager == null) return 0f;
+        return gameManager.GetGameProgressManager().GetDistance() - disasterPosition;
     }
 
-    public float GetDisasterSpeed()
+    public float GetCompletionPercentage()
     {
-        return disasterSpeed;
+        return Mathf.Clamp01(disasterPosition / gameBalanceData.finalDestinationDistance);
     }
 
-    public void StopDisaster()
+    public void StopDisaster() => isActive = false;
+    public bool IsGameOver() => isGameOver;
+    
+    public GamePhase GetCurrentGamePhase()
     {
-        systemActive = false;
+        float playerDistance = gameManager.GetGameProgressManager().GetDistance();
+        
+        if (playerDistance <= gameBalanceData.earlyGameThreshold)
+            return GamePhase.EARLY;
+        else if (playerDistance <= gameBalanceData.midGameThreshold)
+            return GamePhase.MID;
+        else
+            return GamePhase.LATE;
     }
 }
+

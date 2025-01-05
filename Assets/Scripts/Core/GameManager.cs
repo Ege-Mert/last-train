@@ -23,6 +23,8 @@ public class GameManager : MonoBehaviour
     [SerializeField] private ShopPanelController shopPanelController;
     [SerializeField] private PopulationUIController populationUIController;
     [SerializeField] private ResourceUIController resourceUIController;
+    [SerializeField] private SpeedometerUI speedometerUI;
+    [SerializeField] private DisasterTrainBar disasterTrainBar;
 
 
 
@@ -150,7 +152,7 @@ public class GameManager : MonoBehaviour
         
         // Disaster
         disasterManager = new DisasterManager();
-        disasterManager.Initialize(this, disasterData.initialSpeed, disasterData.accelerationRate);
+        disasterManager.Initialize(this, disasterData, gameBalanceData);
         
         // DisasterUpdater
         var updater = new GameObject("DisasterUpdater").AddComponent<DisasterUpdater>();
@@ -198,6 +200,24 @@ public class GameManager : MonoBehaviour
         else
         {
             Debug.LogError("ResourceUIController is not assigned in GameManager!");
+        }
+        
+        if (speedometerUI != null)
+        {
+            speedometerUI.Initialize(this);
+        }
+        else
+        {
+            Debug.LogError("SpeedometerUI is not assigned in GameManager!");
+        }
+        
+        if (disasterTrainBar != null)
+        {
+            disasterTrainBar.Initialize(this);
+        }
+        else
+        {
+            Debug.LogError("DisasterTrainBar is not assigned in GameManager!");
         }
 
 

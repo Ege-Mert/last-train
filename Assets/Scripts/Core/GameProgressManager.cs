@@ -38,9 +38,3 @@ public class GameProgressManager
     }
 }
 
-public enum GamePhase
-{
-    EARLY,
-    MID,
-    LATE
-}
