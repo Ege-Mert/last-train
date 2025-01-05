@@ -15,7 +15,7 @@ MonoBehaviour:
   itemName: CoalConverter
   itemIcon: {fileID: 21300000, guid: 87931250f7331be41b0d651ca9ff034a, type: 3}
   category: {fileID: 11400000, guid: a6d162f0a5b45eb43821861a9f0e3092, type: 2}
-  wagonType: 1
+  wagonType: 2
   cost:
   - type: 0
     amount: 5

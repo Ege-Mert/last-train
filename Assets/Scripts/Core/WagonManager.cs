@@ -1,43 +1,38 @@
-using System.Collections.Generic;
 using UnityEngine;
+using System.Collections.Generic;
 
 public class WagonManager
 {
     private GameManager gameManager;
-    private Transform wagonParent; // New field
-
     private Dictionary<WagonType, WagonBuildData> availableWagons = new Dictionary<WagonType, WagonBuildData>();
     private List<Wagon> activeWagons = new List<Wagon>();
     private Dictionary<WagonType, GameObject> wagonPrefabs = new Dictionary<WagonType, GameObject>();
     private GlobalStorageSystem globalStorageSystem;
 
-    // 1) Add this field to store the locomotive's rear connection
+    private Transform wagonParent;
     private Transform locomotiveRearConn;
 
     public delegate void WagonEvent(Wagon wagon);
     public event WagonEvent OnWagonAdded;
     public event WagonEvent OnWagonRemoved;
 
-    public void Initialize(GameManager gm, 
-                           WagonBuildData[] wagonBuildDatas, 
-                           Dictionary<WagonType, GameObject> prefabs, 
+    public void Initialize(GameManager gm,
+                           WagonBuildData[] wagonBuildDatas,
+                           Dictionary<WagonType, GameObject> prefabs,
                            GlobalStorageSystem storageSystem,
                            Transform parent)
     {
         gameManager = gm;
         wagonPrefabs = prefabs;
         globalStorageSystem = storageSystem;
-        wagonParent = parent; // Store the wagon parent
+        wagonParent = parent;
 
         foreach (var data in wagonBuildDatas)
         {
             availableWagons[data.wagonType] = data;
         }
-
-        Debug.Log("WagonManager initialized with " + availableWagons.Count + " wagon types available.");
     }
 
-    // 2) Provide a public setter so GameManager can assign the locomotive’s rear connector
     public void SetLocomotiveConnectionPoint(Transform locoRear)
     {
         locomotiveRearConn = locoRear;
@@ -56,7 +51,7 @@ public class WagonManager
         return true;
     }
 
-    public bool TryBuildWagon(WagonType type)  // Removed Transform parent parameter
+    public bool TryBuildWagon(WagonType type)
     {
         if (!CanBuildWagon(type)) return false;
 
@@ -74,8 +69,7 @@ public class WagonManager
         }
 
         // Decide spawn position
-        Vector3 spawnPos = wagonParent.position;  // Using internal wagonParent
-
+        Vector3 spawnPos = wagonParent.position;
         if (activeWagons.Count > 0)
         {
             var lastWagon = activeWagons[activeWagons.Count - 1];
@@ -83,8 +77,7 @@ public class WagonManager
             if (lastVis != null)
             {
                 var backPos = lastVis.GetBackConnectorPosition();
-                GameObject temp = wagonPrefabs[type];
-                GameObject dummy = GameObject.Instantiate(temp);
+                GameObject dummy = GameObject.Instantiate(wagonPrefabs[type]);
                 var dummyVis = dummy.GetComponentInChildren<WagonVisuals>();
                 if (dummyVis != null)
                 {
@@ -95,17 +88,20 @@ public class WagonManager
             }
         }
 
+        // Instantiate
         GameObject wagonGO = GameObject.Instantiate(wagonPrefabs[type], spawnPos, Quaternion.identity, wagonParent);
         Wagon w = wagonGO.GetComponent<Wagon>();
         w.Initialize(gameManager);
         activeWagons.Add(w);
 
+        // If it has a StorageComponent => add to global storage system
         var storageComp = wagonGO.GetComponent<StorageComponent>();
         if (storageComp != null)
         {
             globalStorageSystem.AddStorageComponent(storageComp);
         }
-            
+
+        // If it has a HumanCapacityComponent => add capacity
         var humanCap = wagonGO.GetComponent<HumanCapacityComponent>();
         if (humanCap != null)
         {
@@ -115,13 +111,10 @@ public class WagonManager
 
         OnWagonAdded?.Invoke(w);
 
-        return true;
-    }
+        // Recalc camera bounds
+        RecalculateCameraBounds();
 
-    public Wagon GetLastWagon()
-    {
-        if (activeWagons.Count == 0) return null;
-        return activeWagons[activeWagons.Count - 1];
+        return true;
     }
 
     public void DestroyWagon(Wagon wagon)
@@ -129,66 +122,52 @@ public class WagonManager
         if (wagon == null) return;
         OnWagonRemoved?.Invoke(wagon);
         activeWagons.Remove(wagon);
-        Debug.Log($"Destroying wagon: {wagon.name}");
 
-        // If it has a HumanCapacityComponent => remove capacity
         var humanCap = wagon.GetComponent<HumanCapacityComponent>();
         if (humanCap != null)
         {
             int cap = humanCap.GetMaxCapacity();
             gameManager.GetCentralHumanManager().RemoveSleepingCapacity(cap);
-            ReAlignAllWagons();
         }
 
-        // If it has a storage comp => remove from global storage
         var storageComp = wagon.GetComponent<StorageComponent>();
         if (storageComp != null)
         {
             globalStorageSystem.RemoveStorageComponent(storageComp);
-            ReAlignAllWagons();
         }
 
-        // Also reassign workers if it had WorkerComponent
-        // (CentralHumanManager.HandleWagonDestruction)
         var workerComp = wagon.GetComponent<WorkerComponent>();
         if (workerComp != null)
         {
             gameManager.GetCentralHumanManager().HandleWagonDestruction(workerComp);
-            ReAlignAllWagons();
         }
 
         Object.Destroy(wagon.gameObject);
 
-        // Re-align after removal, if desired
         ReAlignAllWagons();
+        RecalculateCameraBounds();
     }
 
     public void ReAlignAllWagons()
     {
-        var wagons = activeWagons;
-        if (wagons.Count == 0) return;
+        if (activeWagons.Count == 0) return;
 
-        // snap first wagon to locomotive
-        SnapWagonToLocomotive(wagons[0]);
-
-        // snap subsequent wagons
-        for (int i = 1; i < wagons.Count; i++)
+        SnapWagonToLocomotive(activeWagons[0]);
+        for (int i = 1; i < activeWagons.Count; i++)
         {
-            SnapWagonToPrevious(wagons[i], wagons[i - 1]);
+            SnapWagonToPrevious(activeWagons[i], activeWagons[i - 1]);
         }
     }
 
     private void SnapWagonToLocomotive(Wagon w)
     {
         if (locomotiveRearConn == null) return;
-
         var wagonVis = w.GetComponentInChildren<WagonVisuals>();
         if (wagonVis == null) return;
 
         Vector3 locoPos = locomotiveRearConn.position;
         Vector3 wagonFrontPos = wagonVis.GetFrontConnectorPosition();
         Vector3 offset = locoPos - wagonFrontPos;
-
         w.transform.position += offset;
     }
 
@@ -202,8 +181,32 @@ public class WagonManager
         thisWagon.transform.position += offset;
     }
 
-    public List<Wagon> GetActiveWagons()
+    // **Here** we compute new left/right camera bounds and raise an event instead of calling camera directly
+    private void RecalculateCameraBounds()
     {
-        return activeWagons;
+        if (activeWagons.Count == 0)
+        {
+            // default bounds
+            CameraBoundsEvents.RaiseCameraBoundsChanged(-10f, 10f);
+            return;
+        }
+
+        float minX = float.MaxValue;
+        float maxX = float.MinValue;
+        foreach (var w in activeWagons)
+        {
+            float x = w.transform.position.x;
+            if (x < minX) minX = x;
+            if (x > maxX) maxX = x;
+        }
+
+        float margin = 5f;
+        minX -= margin;
+        maxX += margin;
+
+        // Instead of calling cameraController, we raise an event
+        CameraBoundsEvents.RaiseCameraBoundsChanged(minX, maxX);
     }
+
+    public List<Wagon> GetActiveWagons() => activeWagons;
 }

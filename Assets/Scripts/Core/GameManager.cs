@@ -25,6 +25,11 @@ public class GameManager : MonoBehaviour
     [SerializeField] private ResourceUIController resourceUIController;
     [SerializeField] private SpeedometerUI speedometerUI;
     [SerializeField] private DisasterTrainBar disasterTrainBar;
+    
+    
+    [Header("Camera")]
+    [SerializeField] private CameraController cameraController;
+
 
 
 
@@ -219,7 +224,7 @@ public class GameManager : MonoBehaviour
         {
             Debug.LogError("DisasterTrainBar is not assigned in GameManager!");
         }
-
+        
 
         
 
