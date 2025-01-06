@@ -32,13 +32,16 @@ MonoBehaviour:
     maxWorkersBonus: 0
     storageCapacityBonus: 0
     coalOutputResource: 2
+    sleepingCapacityBonus: 0
   - level: 2
     collectionRateBonus: 4
     maxWorkersBonus: 12
     storageCapacityBonus: 40
     coalOutputResource: 3
+    sleepingCapacityBonus: 5
   - level: 3
     collectionRateBonus: 8
     maxWorkersBonus: 24
     storageCapacityBonus: 80
     coalOutputResource: 4
+    sleepingCapacityBonus: 10

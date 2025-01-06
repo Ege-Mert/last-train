@@ -230,7 +230,7 @@ public class GameManager : MonoBehaviour
 
 
 
-        resourceManager.AddResourcePartial(ResourceType.WOOD, 200f);
+        resourceManager.AddResourcePartial(ResourceType.WOOD, 30f);
         // if (wagonParent != null)
         // {
         //     wagonManager.TryBuildWagon(WagonType.STORAGE, wagonParent);
@@ -282,7 +282,7 @@ public class GameManager : MonoBehaviour
         }
     }
         */
-        GetCentralHumanManager().AddHumans(100);
+        GetCentralHumanManager().AddHumans(20);
 
 
     }
@@ -292,30 +292,24 @@ public class GameManager : MonoBehaviour
         
         wagonManager.TryBuildWagon(WagonType.STORAGE);
         yield return new WaitForSeconds(1f); // Initial delay
-        wagonManager.TryBuildWagon(WagonType.WOOD_COLLECTOR);
-        yield return new WaitForSeconds(0.1f); // Initial delay
-        wagonManager.TryBuildWagon(WagonType.SCRAP_COLLECTOR);
-        yield return new WaitForSeconds(0.1f); // Initial delay
-        wagonManager.TryBuildWagon(WagonType.CONVERTER);
-        yield return new WaitForSeconds(0.1f); // Initial delay
         wagonManager.TryBuildWagon(WagonType.SLEEPING);
-        yield return new WaitForSeconds(0.1f); // Initial delay
-        wagonManager.TryBuildWagon(WagonType.WOOD_COLLECTOR);
-        yield return new WaitForSeconds(0.1f); // Initial delay
-        wagonManager.TryBuildWagon(WagonType.CONVERTER);
+        // wagonManager.TryBuildWagon(WagonType.WOOD_COLLECTOR);
+        // yield return new WaitForSeconds(0.1f); // Initial delay
+        // wagonManager.TryBuildWagon(WagonType.SCRAP_COLLECTOR);
+        // yield return new WaitForSeconds(0.1f); // Initial delay
+        // wagonManager.TryBuildWagon(WagonType.CONVERTER);
+        // yield return new WaitForSeconds(0.1f); // Initial delay
+        // yield return new WaitForSeconds(0.1f); // Initial delay
+        // wagonManager.TryBuildWagon(WagonType.WOOD_COLLECTOR);
+        // yield return new WaitForSeconds(0.1f); // Initial delay
+        // wagonManager.TryBuildWagon(WagonType.CONVERTER);
         // yield return new WaitForSeconds(2f); // Initial delay
         // TestWagonRemoval();
         // yield return new WaitForSeconds(2f); // Initial delay
         // TestWagonRemoval();
-        
-        yield return new WaitForSeconds(4f); // Initial delay
-        GetTrainBase().currentSpeed = 12;
-    }
-    public void TestWagonRemoval(Wagon wagon)
-{
-    wagonManager.DestroyWagon(wagon);
-}
 
+    }
+    
     public GameProgressManager GetGameProgressManager() { return gameProgressManager; }
     public TerrainManager GetTerrainManager() { return terrainManager; }
     public BiomeManager GetBiomeManager() { return biomeManager; }

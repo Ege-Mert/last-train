@@ -128,7 +128,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   inputResource: 0
-  baseConversionRate: 0.5
+  baseConversionRate: 1.7
 --- !u!114 &8186501977538756523
 MonoBehaviour:
   m_ObjectHideFlags: 0

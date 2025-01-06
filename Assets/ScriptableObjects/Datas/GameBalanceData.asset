@@ -12,6 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: adbfc38ed201d2c4492b590fdad0daec, type: 3}
   m_Name: GameBalanceData
   m_EditorClassIdentifier: 
-  finalDestinationDistance: 1000
+  finalDestinationDistance: 2000
   earlyGameThreshold: 300
   midGameThreshold: 500
