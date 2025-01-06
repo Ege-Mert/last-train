@@ -295,7 +295,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   collectedResourceType: 0
-  baseCollectionRate: 1
+  baseCollectionRate: 10
   bonusCollectionRate: 0
 --- !u!114 &-2558916781738139737
 MonoBehaviour:

@@ -14,7 +14,7 @@ public class CameraController : MonoBehaviour, PlayerControls.IPlayerActions
 
     [Header("Camera Bounds")]
     [SerializeField] private float leftBound = -10f;
-    [SerializeField] private float rightBound = 10f;
+    [SerializeField] private float rightBound = 20f;
 
     [Header("Fixed Y and Z")]
     [SerializeField] private float fixedY = 0f;
@@ -47,11 +47,15 @@ public class CameraController : MonoBehaviour, PlayerControls.IPlayerActions
     private void OnEnable()
     {
         controls.Enable();
+        CameraBoundsEvents.OnCameraBoundsChanged += SetCameraBounds;
+
     }
 
     private void OnDisable()
     {
         controls.Disable();
+        CameraBoundsEvents.OnCameraBoundsChanged -= SetCameraBounds;
+
     }
 
     public void OnRightClick(InputAction.CallbackContext context)
