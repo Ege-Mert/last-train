@@ -15,6 +15,8 @@ public class TrainVisualManager : MonoBehaviour
     [Header("Animation")]
     [SerializeField] private float maxWheelRotationSpeed = 360f;
     [SerializeField] private float trainMaxSpeed = 10f;
+    [SerializeField]private Animator wheelAnimator; // Reference to the Animator component
+
 
     private GameManager gameManager;
     private List<WagonVisuals> wagonVisuals = new List<WagonVisuals>();
@@ -33,6 +35,7 @@ public class TrainVisualManager : MonoBehaviour
             Debug.LogError("WagonAttachPoint not assigned to TrainVisualManager!");
             return;
         }
+
 
         // Subscribe to wagon events
         if (gameManager?.GetWagonManager() != null)
@@ -137,17 +140,11 @@ public class TrainVisualManager : MonoBehaviour
     private void UpdateWheelRotations()
     {
         if (gameManager?.GetTrainBase() == null) return;
-
+    
         float currentSpeed = gameManager.GetTrainBase().GetCurrentSpeed();
         float speedRatio = Mathf.Clamp01(currentSpeed / trainMaxSpeed);
-        float rotationAmount = speedRatio * maxWheelRotationSpeed * Time.deltaTime;
-
-        foreach (var wheel in trainWheels)
-        {
-            if (wheel != null)
-            {
-                wheel.Rotate(0, 0, -rotationAmount);
-            }
-        }
+    
+        // Assuming you have an animation with a speed parameter
+        wheelAnimator.speed = speedRatio * maxWheelRotationSpeed;
     }
 }
