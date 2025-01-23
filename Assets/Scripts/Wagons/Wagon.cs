@@ -27,4 +27,9 @@ public abstract class Wagon : MonoBehaviour
     public string GetWagonName(){
         return wagonName;
     }
+    
+    public GameManager GetGameManager()
+    {
+        return gameManager;
+    }
 }

@@ -29,7 +29,7 @@ public class PopulationUIController : MonoBehaviour
 
         // Example display: "Humans: 40 (available) / 50 (total) - capacity 45"
         // If total > capacity, text is red
-        populationText.text = $"Humans: {avail} / {totalPop} (Cap: {capacity})";
+        populationText.text = $"{avail} / {capacity}";
 
         if (gm.GetCentralHumanManager().IsOverCapacity())
             populationText.color = Color.red;

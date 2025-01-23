@@ -35,13 +35,13 @@ public class ResourceUIController : MonoBehaviour
         // Resources
         float woodAmount = rm.GetResourceAmount(ResourceType.WOOD);
         float scrapAmount = rm.GetResourceAmount(ResourceType.SCRAP);
-        woodText.text = $"Wood: {woodAmount:F1}";
-        scrapText.text = $"Scrap: {scrapAmount:F1}";
+        woodText.text = $"{woodAmount:F1}";
+        scrapText.text = $"{scrapAmount:F1}";
 
         // Weight
         float totalWeight = rm.GetTotalWeight();
         float weightCapacity = rm.GetWeightCapacity();
-        weightText.text = $"Weight: {totalWeight:F1} / {weightCapacity:F1}";
+        weightText.text = $"{totalWeight:F1} / {weightCapacity:F1}";
 
         // Color
         weightText.color = rm.GetIsOverCapacity() ? Color.red : Color.white;
@@ -52,10 +52,10 @@ public class ResourceUIController : MonoBehaviour
         float high = rm.GetResourceAmount(ResourceType.COAL_HIGH);
         float total = low + med + high;
 
-        coalTotalText.text = $"Coal: {total:F1}";
-        coalLowText.text = $"Low: {low:F1}";
-        coalMedText.text = $"Med: {med:F1}";
-        coalHighText.text = $"High: {high:F1}";
+        coalTotalText.text = $"{total:F1}";
+        coalLowText.text = $"{low:F1}";
+        coalMedText.text = $"{med:F1}";
+        coalHighText.text = $"{high:F1}";
     }
 
     public void OnCoalHoverEnter()

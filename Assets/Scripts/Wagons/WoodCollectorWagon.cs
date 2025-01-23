@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class WoodCollectorWagon : Wagon, IWagonProduction
+public class WoodCollectorWagon : Wagon
 {
     private WorkerComponent workerComponent;
     private CollectorComponent collectorComponent;
@@ -16,33 +16,20 @@ public class WoodCollectorWagon : Wagon, IWagonProduction
         workerComponent = GetComponent<WorkerComponent>();
         collectorComponent = GetComponent<CollectorComponent>();
 
-        if (collectorComponent != null && workerComponent != null)
-        {
-            collectorComponent.Initialize(gm, workerComponent);
-            workerComponent.Initialize(gm.GetCentralHumanManager());
-        }
-
-        var upgradeComp = GetComponent<UpgradeComponent>();
-        if (upgradeComp != null && upgradeData != null)
-        {
-            upgradeComp.Initialize(gm, this, upgradeData);
-        }
-        
-        gm.GetWagonProductionManager().RegisterWagon(this);
-
-    }
-    public bool CanProduce()
+    if (collectorComponent != null && workerComponent != null)
     {
-        var durability = GetComponent<DurabilityComponent>();
-        return durability == null || !durability.IsBroken();
+        collectorComponent.Initialize(gm, workerComponent);
+        workerComponent.Initialize(gm.GetCentralHumanManager());
     }
-    
-    public float GetProductionInterval()
+
+    var upgradeComp = GetComponent<UpgradeComponent>();
+    if (upgradeComp != null && upgradeData != null)
     {
-        return productionInterval;
+        upgradeComp.Initialize(gm, this, upgradeData);
     }
-    
-    public void ProcessProduction(float deltaTime)
+    }
+
+    void Update()
     {
         // Check durability
         var durability = GetComponent<DurabilityComponent>();
@@ -56,13 +43,6 @@ public class WoodCollectorWagon : Wagon, IWagonProduction
         if (collectorComponent != null)
         {
             collectorComponent.CollectResources(Time.deltaTime);
-        }
-    }
-    private void OnDestroy()
-    {
-        if (gameManager != null)
-        {
-            gameManager.GetWagonProductionManager().UnregisterWagon(this);
         }
     }
     
